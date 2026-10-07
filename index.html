@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AI Product Studio — v1.0</title>
+<title>AI Product Studio — v3</title>
 <meta name="description" content="AI Product Studio — рабочее пространство для проектирования цифровых продуктов.">
 <style>
 :root{--bg:#050812;--p:#0b1220;--p2:#101a2d;--line:#22314d;--a:#7c5cff;--b:#22d3ee;--ok:#42e6a0;--warn:#ffcc66;--txt:#eef4ff;--mut:#8fa0ba}
@@ -11,12 +11,17 @@
 button,input,textarea,select{font:inherit}.app{min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:245px;padding:22px 15px;background:#070b15e8;border-right:1px solid var(--line);backdrop-filter:blur(18px);z-index:5}.brand{font-size:20px;font-weight:850}.brand i{color:var(--b);font-style:normal}.version{display:inline-block;margin:7px 0 22px;padding:4px 8px;border:1px solid #2a3b5c;border-radius:8px;color:var(--ok);font-size:10px;letter-spacing:1px}.nav{display:grid;gap:6px}.nav button{border:1px solid transparent;background:transparent;color:#b9c5d8;text-align:left;padding:10px 12px;border-radius:10px;cursor:pointer}.nav button:hover,.nav button.active{background:#111b30;border-color:#2b3e60;color:#fff}.mini{position:absolute;bottom:18px;left:15px;right:15px;border:1px solid var(--line);border-radius:12px;padding:12px;background:#0a1020}.mini a{color:var(--b);text-decoration:none}.main{margin-left:245px;padding:28px;max-width:1500px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.status{color:#aebbd0;font-size:12px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 12px var(--ok);margin-right:7px}.pill{border:1px solid #293b5b;border-radius:99px;padding:7px 11px;color:#aebbd0;background:#0a1120}.hero{padding:36px;border:1px solid #293b52;border-radius:22px;background:linear-gradient(135deg,#7c5cff22,#22d3ee0b 45%,#0b1220e8);box-shadow:0 25px 80px #0005}.eyebrow{color:var(--b);font-size:11px;letter-spacing:2px}.hero h1{font-size:clamp(38px,6vw,70px);line-height:1;margin:10px 0;letter-spacing:-3px}.hero h1 span{color:var(--a)}.hero p{max-width:800px;color:#aab8ce;font-size:16px}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}.btn{border:0;border-radius:10px;padding:11px 15px;background:linear-gradient(90deg,var(--a),#5b9dff);color:#fff;font-weight:750;cursor:pointer}.btn.alt{background:#101a2d;border:1px solid #2b3d5c}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:15px 0}.stat,.card,.panel{border:1px solid var(--line);border-radius:15px;background:#0b1220e8}.stat{padding:16px}.stat b{font-size:22px}.muted{color:var(--mut)}section{margin-top:25px;scroll-margin-top:20px}.title{display:flex;justify-content:space-between;align-items:end;margin-bottom:12px}.title h2{margin:0;font-size:23px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{padding:18px}.studio{display:grid;grid-template-columns:1.1fr .9fr;gap:12px}.panel{padding:18px}.field{margin:11px 0}.field label{display:block;font-size:11px;color:#aebbd0;margin-bottom:5px}.field input,.field textarea,.field select,.chatbar input{width:100%;border:1px solid #2a3c5d;border-radius:9px;background:#070d19;color:#fff;padding:10px;outline:0}.field textarea{min-height:100px;resize:vertical}.flow{display:grid;gap:8px}.step{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid #1d2a43;border-radius:10px;background:#091120}.step.done{border-color:#245744}.step.current{border-color:#5845b0;box-shadow:0 0 18px #7c5cff18}.num{width:28px;height:28px;display:grid;place-items:center;border-radius:7px;background:#18253e;color:#9fb0c9;font-size:11px;font-weight:800}.done .num{background:#123b30;color:var(--ok)}.table{width:100%;border-collapse:collapse}.table th,.table td{text-align:left;padding:10px;border-bottom:1px solid #1d2a43}.badge{padding:4px 7px;border-radius:7px;background:#122b25;color:var(--ok);font-size:11px}.badge.w{background:#302719;color:var(--warn)}.preview{height:240px;border:1px solid #2a3d60;border-radius:12px;background:linear-gradient(145deg,#111b3b,#080e19);padding:14px}.mockbar{height:25px;border-radius:7px;background:#17233d;margin-bottom:12px}.mockgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.mockcard{height:70px;border-radius:9px;background:#101a2d;border:1px solid #223250}.chat{height:360px;display:flex;flex-direction:column}.messages{flex:1;overflow:auto;display:grid;align-content:start;gap:8px}.msg{max-width:80%;padding:9px 12px;border-radius:11px;background:#111c30}.msg.me{margin-left:auto;background:#29346c}.chatbar{display:flex;gap:8px;margin-top:10px}.chatbar input{flex:1}.contact{display:grid;grid-template-columns:1fr 1fr;gap:12px}.contact a{color:var(--b);text-decoration:none;margin-right:12px}.toast{position:fixed;right:18px;bottom:18px;padding:12px 15px;background:#0b1424;border:1px solid #385075;border-radius:10px;display:none;z-index:10}.toast.show{display:block}.foot{text-align:center;padding:35px;color:#64748b;font-size:11px}
 @media(max-width:950px){.side{width:72px}.brand{font-size:0}.brand:after{content:'AI';font-size:20px}.version,.nav button span,.mini{display:none}.nav button{text-align:center;font-size:18px}.main{margin-left:72px;padding:16px}.stats,.grid,.studio,.contact{grid-template-columns:1fr}.hero{padding:25px}}
 </style>
-</head>
+<style>
+:root{--bg:#050812;--p:#0b1220;--p2:#101a2d;--line:#243653;--a:#8b6cff;--b:#28d9ee;--ok:#43e6a4;--warn:#ffd166;--txt:#f2f6ff;--mut:#91a2bd}
+.hero{position:relative;overflow:hidden}.hero:after{content:'V3';position:absolute;right:28px;top:10px;font-size:180px;font-weight:900;color:#ffffff05;pointer-events:none}
+.card,.panel,.stat{transition:transform .2s,border-color .2s,box-shadow .2s}.card:hover,.panel:hover{transform:translateY(-2px);border-color:#3a4f73;box-shadow:0 14px 35px #0004}
+.step{transition:.2s}.step:hover{border-color:#3d5480}
+</style></head>
 <body>
 <div class="app">
 <aside class="side">
 <div class="brand">AI <i>Product Studio</i></div>
-<div class="version">PRODUCT v1.2 · CLOUD READY</div>
+<div class="version">PRODUCT v3 · PRODUCT SYSTEM</div>
 <nav class="nav">
 <button class="active" data-go="home">⌂ <span>Рабочий стол</span></button>
 <button data-go="projects">▦ <span>Проекты</span></button>
@@ -25,24 +30,24 @@ button,input,textarea,select{font:inherit}.app{min-height:100vh}.side{position:f
 <button data-go="design">◈ <span>UI / UX</span></button>
 <button data-go="analysis">◉ <span>Аналитика</span></button>
 <button data-go="chat">◌ <span>AI Чат</span></button>
-<button data-go="cloud">☁ <span>Cloud</span></button><button data-go="documents">▤ <span>Документы</span></button><button data-go="admin">⚙ <span>Админ</span></button>
+<button data-go="architecture">⌘ <span>Архитектура</span></button><button data-go="cloud">☁ <span>Cloud</span></button><button data-go="documents">▤ <span>Документы</span></button><button data-go="admin">⚙ <span>Админ</span></button>
 <button data-go="contacts">☎ <span>Контакт</span></button>
 </nav>
 <div class="mini"><b>Studio owner</b><br><a href="tel:+380976588900">097 658 89 00</a></div>
 </aside>
 <main class="main">
-<div class="top"><div class="status"><span class="dot"></span>Workspace готов</div><div class="actions" style="margin:0"><button class="btn alt" onclick="openAuth()">Аккаунт</button><div class="pill">v1.2 · cloud-ready workspace</div></div></div>
+<div class="top"><div class="status"><span class="dot"></span>Workspace готов</div><div class="actions" style="margin:0"><button class="btn alt" onclick="openAuth()">Аккаунт</button><div class="pill">v3 · product system</div></div></div>
 <section id="home" class="hero">
 <div class="eyebrow">AI PRODUCT STUDIO</div>
 <h1>От идеи <span>до продукта.</span></h1>
-<p>Рабочая версия студии: проекты, продуктовый конструктор, запросы, UI/UX, аналитика, AI-чат и управление рабочим пространством.</p>
+<p>Полноценная продуктовая среда: идея → исследование → концепция → дизайн → архитектура → сборка → запуск. Все разделы связаны с выбранным проектом и единым контекстом.</p>
 <div class="actions"><button class="btn" onclick="go('builder')">+ Новый продукт</button><button class="btn alt" onclick="go('projects')">Открыть проекты</button></div>
 </section>
 <div class="stats">
 <div class="stat"><span class="muted">Проекты</span><br><b id="statProjects">0</b></div>
 <div class="stat"><span class="muted">В работе</span><br><b id="statActive">0</b></div>
 <div class="stat"><span class="muted">Готово</span><br><b id="statDone">0</b></div>
-<div class="stat"><span class="muted">Версия</span><br><b>1.0</b></div>
+<div class="stat"><span class="muted">Версия</span><br><b>3.0</b></div>
 </div>
 <section id="projects"><div class="title"><h2>Проекты</h2><button class="btn" onclick="go('builder')">Создать</button></div>
 <div class="panel"><table class="table"><thead><tr><th>Проект</th><th>Тип</th><th>Статус</th><th>Дата</th><th></th></tr></thead><tbody id="projectTable"><tr><td colspan="5" class="muted">Пока нет проектов. Создай первый.</td></tr></tbody></table></div></section>
@@ -63,9 +68,19 @@ button,input,textarea,select{font:inherit}.app{min-height:100vh}.side{position:f
 <div class="studio"><div class="panel"><h3>Компоненты</h3><p class="muted">Карточки, формы, навигация, статусы, dashboard и мобильная адаптация.</p><div class="actions"><button class="btn" onclick="notify('UI-компоненты добавлены')">Добавить компоненты</button><button class="btn alt" onclick="notify('Каркас экрана создан')">Создать экран</button></div></div>
 <div class="panel"><h3>Preview</h3><div class="preview"><div class="mockbar"></div><div class="mockgrid"><div class="mockcard"></div><div class="mockcard"></div><div class="mockcard"></div><div class="mockcard"></div></div></div></div></div></section>
 <section id="analysis"><div class="title"><h2>Аналитика</h2><span class="muted">Product Intelligence</span></div>
+<div class="grid"><div class="card"><b>Product Score</b><h3 id="productScore">—</h3><p class="muted">Оценка готовности по текущему pipeline.</p></div><div class="card"><b>Риск</b><h3 id="productRisk">Не определён</h3><p class="muted">AI должен проверить спрос, сложность и зависимости.</p></div><div class="card"><b>Next Best Action</b><h3 id="nextAction">Выбери проект</h3><p class="muted">Следующее действие системы по выбранному продукту.</p></div></div>
 <div class="grid"><div class="card"><b>Ценность</b><h3>Высокая</h3><p class="muted">Проблема должна быть конкретной и измеримой.</p></div><div class="card"><b>MVP</b><h3>Средняя сложность</h3><p class="muted">Начинай с одного основного сценария.</p></div><div class="card"><b>Следующий шаг</b><h3>Прототип</h3><p class="muted">После прототипа — API и production backend.</p></div></div></section>
-<section id="chat"><div class="title"><h2>AI Чат</h2><span class="muted">рабочая оболочка</span></div>
-<div class="panel chat"><div id="messages" class="messages"><div class="msg">AI Product Studio готов. Выбери проект или напиши, что нужно построить.</div></div><div class="chatbar"><input id="chatInput" placeholder="Например: сделай MVP Quick Market"><button class="btn" onclick="sendChat()">Отправить</button></div></div></section>
+<section id="architecture"><div class="title"><h2>Архитектура</h2><span class="muted">System Blueprint</span></div>
+<div class="studio"><div class="panel"><h3>Слои продукта</h3><div class="flow">
+<div class="step current"><div class="num">01</div><div><b>Experience</b><div class="muted">Web / Mobile / UI Kit</div></div></div>
+<div class="step"><div class="num">02</div><div><b>Application</b><div class="muted">Frontend · state · business logic</div></div></div>
+<div class="step"><div class="num">03</div><div><b>Backend</b><div class="muted">API · database · auth · roles</div></div></div>
+<div class="step"><div class="num">04</div><div><b>AI & Data</b><div class="muted">AI Gateway · analytics · automation</div></div></div>
+<div class="step"><div class="num">05</div><div><b>Delivery</b><div class="muted">GitHub · Netlify · mobile builds</div></div></div>
+</div></div>
+<div class="panel"><h3>Launch Center</h3><p class="muted">Финальная зона продукта: проверка спецификации, экспорт, deployment и подготовка к публикации.</p><div class="actions"><button class="btn" onclick="notify('Pre-launch checklist создан')">Pre-launch check</button><button class="btn alt" onclick="go('documents')">Открыть документы</button><button class="btn alt" onclick="go('cloud')">Cloud / Auth</button></div><div class="preview" style="margin-top:14px"><div class="mockbar"></div><div class="mockgrid"><div class="mockcard"></div><div class="mockcard"></div><div class="mockcard"></div><div class="mockcard"></div></div></div></div></div></section>
+<section id="chat"><div class="title"><h2>AI Чат</h2><span class="muted">Product Copilot</span></div>
+<div class="panel chat"><div id="messages" class="messages"><div class="msg">AI Product Studio v3 готов. Выбери проект — AI будет работать в контексте его pipeline, аудитории и идеи.</div></div><div class="chatbar"><input id="chatInput" placeholder="Например: сделай MVP Quick Market"><button class="btn" onclick="sendChat()">Отправить</button></div></div></section>
 <section id="cloud"><div class="title"><h2>Cloud Workspace</h2><span class="muted">авторизация и облачная БД</span></div>
 <div class="grid">
 <div class="card"><b>Авторизация</b><p class="muted" id="authState">Локальный режим. Подключение Supabase можно активировать в настройках.</p><button class="btn alt" onclick="openAuth()">Войти / регистрация</button></div>
@@ -77,14 +92,14 @@ button,input,textarea,select{font:inherit}.app{min-height:100vh}.side{position:f
 <div class="card"><b>Product Brief</b><p class="muted">Цель, аудитория, проблема, MVP, pipeline и следующий шаг.</p><button class="btn" onclick="downloadBrief()">Скачать Brief</button></div>
 <div class="card"><b>Build Spec</b><p class="muted">Структурированное ТЗ для передачи разработчику или AI-кодеру.</p><button class="btn alt" onclick="downloadBuildSpec()">Скачать Build Spec</button></div>
 <div class="card"><b>Следующий уровень</b><p class="muted">Подключаем Supabase и серверный AI Gateway — после этого workspace становится многопользовательским.</p><span class="badge">READY</span></div>
-</div></section><section id="admin"><div class="title"><h2>Админ</h2><span class="muted">workspace settings</span></div>
-<div class="grid"><div class="card"><b>Хранилище</b><p class="muted">Проекты сохраняются локально в браузере.</p><button class="btn alt" onclick="exportData()">Экспорт JSON</button></div>
-<div class="card"><b>Безопасность</b><p class="muted">В v1.0 нет серверных ключей и внешнего API.</p><span class="badge">LOCAL</span></div>
-<div class="card"><b>Статус системы</b><p class="muted">Интерфейс и данные доступны офлайн.</p><span class="badge">SYSTEM READY</span></div></div></section>
+</div></section><section id="admin"><div class="title"><h2>Админ</h2><span class="muted">Workspace Control</span></div>
+<div class="grid"><div class="card"><b>Хранилище</b><p class="muted">Локальное хранилище + Cloud Sync. Администратор управляет конфигурацией workspace и экспортом.</p><button class="btn alt" onclick="exportData()">Экспорт JSON</button></div>
+<div class="card"><b>Безопасность</b><p class="muted">Browser не хранит секретный AI API key. Supabase использует anon key + RLS, AI работает через server gateway.</p><span class="badge">LOCAL</span></div>
+<div class="card"><b>Статус системы</b><p class="muted">Система сохраняет локальный fallback и может работать без Cloud до подключения backend.</p><span class="badge">SYSTEM READY</span></div></div></section>
 <section id="contacts"><div class="title"><h2>Контакт</h2><span class="muted">прямая связь</span></div>
 <div class="contact"><div class="panel"><h3>097 658 89 00</h3><a href="tel:+380976588900">☎ Позвонить</a><a href="sms:+380976588900">✉ SMS</a><a href="viber://chat?number=%2B380976588900">◉ Viber</a></div>
-<div class="panel"><h3>AI Product Studio v1.0</h3><p class="muted">Рабочая клиентская версия. Единый workspace: проект → pipeline → UI/UX → аналитика → AI-контекст → документы → облачная авторизация.</p></div></div></section>
-<footer class="foot">© 2026 AI Product Studio · Product v1.2 · Cloud Ready · 097 658 89 00</footer>
+<div class="panel"><h3>AI Product Studio v3</h3><p class="muted">Рабочая клиентская версия. Единый workspace: проект → pipeline → UI/UX → аналитика → AI-контекст → документы → облачная авторизация.</p></div></div></section>
+<footer class="foot">© 2026 AI Product Studio · Product v3 · Product System · 097 658 89 00</footer>
 </main></div><div id="authModal" class="toast" style="right:50%;bottom:auto;top:12%;transform:translateX(50%);width:min(430px,calc(100% - 30px));display:none"><div style="display:flex;justify-content:space-between;align-items:center"><b>Cloud Account</b><button class="btn alt" onclick="closeAuth()">Закрыть</button></div><p class="muted">Интерфейс готов для Supabase Auth. Пока подключение не настроено, Studio продолжает работать локально.</p><div class="field"><label>Email</label><input id="authEmail" type="email" placeholder="you@example.com"></div><div class="field"><label>Пароль</label><input id="authPassword" type="password" placeholder="••••••••"></div><div class="field"><label>Supabase URL</label><input id="supabaseUrl" placeholder="https://xxxx.supabase.co"></div><div class="field"><label>Supabase anon key</label><input id="supabaseKey" placeholder="eyJ..."></div><div class="actions"><button class="btn" onclick="cloudAuth('signin')">Войти</button><button class="btn alt" onclick="cloudAuth('signup')">Регистрация</button><button class="btn alt" onclick="saveCloudConfig()">Сохранить Cloud</button><button class="btn alt" onclick="demoAuth()">Demo</button></div></div><div id="toast" class="toast"></div>
 <script>
 const PIPELINE=[{id:'idea',name:'Идея',short:'01',hint:'Проблема и ценность'},{id:'request',name:'Запрос',short:'02',hint:'Product Brief'},{id:'concept',name:'Концепция',short:'03',hint:'MVP и сценарии'},{id:'design',name:'UI / UX',short:'04',hint:'Экраны и компоненты'},{id:'analysis',name:'Анализ',short:'05',hint:'Ценность и риски'},{id:'product',name:'Продукт',short:'06',hint:'Готов к сборке'}];
@@ -129,11 +144,15 @@ function openProject(i){
 function updateIntelligence(project){
  const title=document.querySelector('#analysis .title');if(title&&!title.dataset.ready){title.insertAdjacentHTML('afterend','<div id="systemContext" class="panel" style="margin-bottom:12px"></div>');title.dataset.ready='1'}
  const box=document.getElementById('systemContext');if(!box)return;const done=Object.values(project.pipeline).filter(Boolean).length,pct=Math.round(done/PIPELINE.length*100);
- box.innerHTML='<b>Системный контекст</b><p class="muted" style="margin:6px 0 0">Проект: <b>'+escapeHtml(project.name)+'</b> · '+pct+'% pipeline · следующий этап: '+escapeHtml((PIPELINE.find(s=>!project.pipeline[s.id])||{name:'Релиз'}).name)+'</p>'
+ box.innerHTML='<b>Системный контекст</b><p class="muted" style="margin:6px 0 0">Проект: <b>'+escapeHtml(project.name)+'</b> · '+pct+'% pipeline · следующий этап: '+escapeHtml((PIPELINE.find(s=>!project.pipeline[s.id])||{name:'Релиз'}).name)+'</p>';
+const score=document.getElementById('productScore'),risk=document.getElementById('productRisk'),next=document.getElementById('nextAction');
+if(score)score.textContent=pct+' / 100';
+if(next)next.textContent=(PIPELINE.find(s=>!project.pipeline[s.id])||{name:'Релиз готов'}).name;
+if(risk)risk.textContent=pct<34?'Высокий':pct<67?'Средний':'Низкий'
 }
 function clearBuilder(){['projectName','audience','projectIdea'].forEach(id=>document.getElementById(id).value='');selectedId=null;renderFlow();notify('Конструктор очищен')}
 function useTemplate(t){document.getElementById('projectIdea').value=t;go('builder');notify('Шаблон добавлен в конструктор')}
-function exportData(){downloadFile('ai-product-studio-workspace.json',JSON.stringify({app:'AI Product Studio',version:'1.2',exportedAt:new Date().toISOString(),projects:getProjects()},null,2),'application/json');notify('Workspace экспортирован')}
+function exportData(){downloadFile('ai-product-studio-workspace.json',JSON.stringify({app:'AI Product Studio',version:'3.0',exportedAt:new Date().toISOString(),projects:getProjects()},null,2),'application/json');notify('Workspace экспортирован')}
 function downloadFile(name,data,type){const blob=new Blob([data],{type}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function downloadBrief(){
  const x=currentProject();if(!x){notify('Сначала выбери проект');return}
@@ -143,7 +162,7 @@ function downloadBrief(){
 }
 function downloadBuildSpec(){
  const x=currentProject();if(!x){notify('Сначала выбери проект');return}
- const spec={project:x.name,type:x.type,audience:x.audience,idea:x.idea,pipeline:x.pipeline,requirements:['Responsive web/mobile UI','Persistent project state','Cloud authentication adapter','Server-side AI gateway','Exportable product documentation']};
+ const spec={project:x.name,type:x.type,audience:x.audience,idea:x.idea,pipeline:x.pipeline,requirements:['Responsive web/mobile UI','Persistent project state','Cloud authentication + RLS','Server-side AI gateway','Product Intelligence','System Architecture Blueprint','Exportable product documentation','Launch Center']};
  downloadFile(x.name.replace(/[^a-z0-9а-яё]+/gi,'-').toLowerCase()+'-build-spec.json',JSON.stringify(spec,null,2),'application/json');notify('Build Spec создан')
 }
 function openAuth(){const e=document.getElementById('authModal');e.style.display='block';e.classList.add('show')}
@@ -163,7 +182,7 @@ async function sendChat(){
  const x=currentProject(),context=x?'Контекст проекта: '+x.name+'; тип: '+x.type+'; аудитория: '+(x.audience||'не указана')+'; идея: '+(x.idea||'не указана')+'. ':'';
  try{
   const r=await fetch('/api/ai',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:[
-   {role:'system',content:'Ты AI Product Studio. Помогай превращать идеи в продуктовые решения. Отвечай кратко, структурно и привязывай рекомендации к Pipeline: Idea, Request, Concept, UI/UX, Analysis, Product.'},
+   {role:'system',content:'Ты AI Product Studio v3. Ты Product Copilot: анализируй идею, рынок, MVP, UX, архитектуру, риски и план запуска. Отвечай структурно и используй контекст выбранного проекта. Pipeline: Idea → Request → Concept → UI/UX → Analysis → Product.'},
    {role:'user',content:context+t}
   ]})});
   const data=await r.json();
