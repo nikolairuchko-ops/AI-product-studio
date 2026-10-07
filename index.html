@@ -17,9 +17,9 @@ svg{width:min(82%,520px);height:auto;overflow:visible;filter:drop-shadow(0 25px 
 @media(max-width:520px){.top{height:56px;padding:0 12px}.main{padding:14px 10px}.stage{min-height:510px}.viewer{min-height:390px}.panel{border-radius:14px}.hero h1{font-size:34px}}
 </style></head>
 <body><div class="app">
-<header class="top"><div class="brand">AI <span>Product Studio</span></div><div class="status"><i class="dot"></i>3D GENERATOR · v4</div></header>
+<header class="top"><div class="brand">AI <span>Product Studio</span></div><div class="status"><i class="dot"></i>3D GENERATOR · v4.1</div></header>
 <main class="main">
-<section class="hero"><div><h1>Идея → форма</h1><p>Упростили Studio до одного действия: выбери простую металлическую форму и управляй её векторной 3D-моделью касанием или скроллом с разных сторон экрана.</p></div><div class="tag">TOUCH / SCROLL / VECTOR</div></section>
+<section class="hero"><div><h1>Идея → форма</h1><p>Studio теперь работает как жестовый конструктор: выбери базовую форму, включи режим конструирования и меняй геометрию прямо касанием, свайпом и скроллом.</p></div><div class="tag">TOUCH / SCROLL / VECTOR</div></section>
 <section class="generator">
 <aside class="panel"><h3>1 · Выбери форму</h3><div class="choices" id="shapeChoices">
 <button class="choice active" data-shape="box">▣ Блок<small>прямоугольная форма</small></button>
@@ -27,27 +27,30 @@ svg{width:min(82%,520px);height:auto;overflow:visible;filter:drop-shadow(0 25px 
 <button class="choice" data-shape="frame">□ Рама<small>простая конструкция</small></button>
 <button class="choice" data-shape="plate">▱ Пластина<small>листовой металл</small></button>
 <button class="choice" data-shape="beam">╱ Балка<small>профиль / конструктив</small></button></div>
-<h3 style="margin-top:18px">2 · Размер</h3><input id="size" class="range" type="range" min="40" max="130" value="80">
+<h3 style="margin-top:18px">2 · Режим</h3><div class="controls" style="grid-template-columns:1fr 1fr;margin:0 0 10px"><button class="control mode active" data-mode="view"><b>◉ Вид</b><small>вращение / масштаб</small></button><button class="control mode" data-mode="build"><b>✦ Конструктор</b><small>жест = геометрия</small></button></div><h3>3 · Размер</h3><input id="size" class="range" type="range" min="40" max="130" value="80">
 <div class="metric"><span>Масштаб</span><b id="sizeValue">80%</b></div>
 <div class="actions"><button class="btn" id="generate">Сгенерировать</button><button class="btn alt" id="reset">Сбросить вид</button></div></aside>
 
 <section class="panel stage"><div class="stageHead"><b id="modelName">METAL BLOCK</b><span id="gesture">двигай пальцем / скролль</span></div>
 <div class="viewer" id="viewer"><svg id="model" viewBox="-260 -210 520 420" aria-label="Векторная 3D модель">
 <defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5f8fb"/><stop offset=".42" stop-color="#aab6c1"/><stop offset="1" stop-color="#596775"/></linearGradient></defs><g id="modelGroup"></g></svg>
-<div class="hint">← касание слева = вращение · справа = наклон · вверх/вниз = масштаб · колесо = вращение</div></div>
+<div class="hint" id="hint">Режим «Вид»: свайп вращает · вертикальный жест меняет наклон · колесо меняет масштаб</div></div>
 <div class="controls"><button class="control" data-action="left"><b>◀ Поворот</b><small>левая сторона</small></button><button class="control" data-action="right"><b>▶ Поворот</b><small>правая сторона</small></button><button class="control" data-action="up"><b>▲ Наклон</b><small>верх экрана</small></button><button class="control" data-action="down"><b>▼ Наклон</b><small>низ экрана</small></button></div></section>
 
-<aside class="panel"><h3>3 · Параметры</h3><div class="metric"><span>Поворот X</span><b id="rx">18°</b></div><div class="metric"><span>Поворот Y</span><b id="ry">32°</b></div><div class="metric"><span>Масштаб</span><b id="scaleRead">1.00×</b></div><div class="metric"><span>Материал</span><b>Metal</b></div><div class="metric"><span>Представление</span><b>Vector 3D</b></div>
-<h3 style="margin-top:18px">4 · Результат</h3><p id="resultText" style="color:var(--muted);font-size:11px">Модель готова к изменению. Каждый жест создаёт новый визуальный вариант формы.</p>
-<div class="actions"><button class="btn alt" id="save">Сохранить идею</button><button class="btn alt" id="export">Экспорт SVG</button></div></aside></section>
+<aside class="panel"><h3>4 · Параметры</h3><div class="metric"><span>Поворот X</span><b id="rx">18°</b></div><div class="metric"><span>Поворот Y</span><b id="ry">32°</b></div><div class="metric"><span>Масштаб</span><b id="scaleRead">1.00×</b></div><div class="metric"><span>Материал</span><b>Metal</b></div><div class="metric"><span>Представление</span><b>Vector 3D</b></div>
+<h3 style="margin-top:18px">5 · Результат</h3><p id="resultText" style="color:var(--muted);font-size:11px">В режиме «Конструктор» жесты меняют размеры и профиль модели, а не только её положение.</p>
+<div class="actions"><button class="btn alt" id="save">Сохранить идею</button><button class="btn alt" id="export">Экспорт SVG</button><button class="btn alt" id="exportJson">Экспорт JSON</button></div></aside></section>
 <div class="bottom"><div>Выбрано: <span class="selected" id="selected">Metal Block</span></div><div id="saved" style="color:var(--muted)">локальный режим</div></div>
 <footer class="foot">AI Product Studio · интерактивный 3D-концептор простых металлических форм · 097 658 89 00</footer>
 </main></div>
 <script>
-const S={shape:'box',rx:18,ry:32,scale:1,size:80,drag:false,x:0,y:0};
+const S={shape:'box',rx:18,ry:32,scale:1,size:80,drag:false,x:0,y:0,mode:'view',width:1,height:1,depth:1,thickness:1,segments:0};
 const names={box:'Metal Block',tube:'Metal Tube',frame:'Metal Frame',plate:'Metal Plate',beam:'Metal Beam'};
 const group=document.getElementById('modelGroup'),viewer=document.getElementById('viewer');
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const modeButtons=document.querySelectorAll('.mode');
+function buildStep(dx,dy){S.width=clamp(S.width+dx*.012,.55,1.7);S.height=clamp(S.height-dy*.012,.55,1.7);S.depth=clamp(S.depth+(Math.abs(dx)+Math.abs(dy))*.0015,.65,1.65);S.thickness=clamp(S.thickness+((dx>0?1:-1)*.015),.55,1.55);S.segments=clamp(Math.round(S.segments+(Math.abs(dx)>70?1:0)),0,8);}
+function setMode(m){S.mode=m;modeButtons.forEach(b=>b.classList.toggle('active',b.dataset.mode===m));document.getElementById('hint').textContent=m==='build'?'Режим «Конструктор»: свайп ↔ меняет ширину · ↑↓ меняет высоту · скролл меняет толщину':'Режим «Вид»: свайп вращает · вертикальный жест меняет наклон · колесо меняет масштаб';document.getElementById('gesture').textContent=m==='build'?'жест = геометрия':'двигай пальцем / скролль';}
 const face=(p,c='face')=>'<polygon class="'+c+'" points="'+p+'"/>';
 function drawBox(){const w=155*S.size/80,h=105*S.size/80,d=95*S.size/80;return face((-w/2)+','+(-h/2)+' '+(w/2)+','+(-h/2)+' '+(w/2+d*.35)+','+(-h/2-d*.35)+' '+(-w/2+d*.35)+','+(-h/2-d*.35))+face((-w/2)+','+(-h/2)+' '+(-w/2+d*.35)+','+(-h/2-d*.35)+' '+(-w/2+d*.35)+','+(h/2-d*.35)+' '+(-w/2)+','+(h/2))+face((-w/2)+','+(h/2)+' '+(w/2)+','+(h/2)+' '+(w/2+d*.35)+','+(h/2-d*.35)+' '+(-w/2+d*.35)+','+(h/2-d*.35))+'<path class="edge" d="M '+(-w/2)+' '+(-h/2)+' L '+(w/2)+' '+(-h/2)+' L '+(w/2+d*.35)+' '+(-h/2-d*.35)+' L '+(-w/2+d*.35)+' '+(-h/2-d*.35)+' Z"/>'}
 function drawTube(){const r=65*S.size/80,hh=150*S.size/80;return '<ellipse class="face" cx="0" cy="'+(-hh/2)+'" rx="'+r+'" ry="'+(r*.32)+'"/><path class="face" d="M '+(-r)+' '+(-hh/2)+' L '+(-r)+' '+(hh/2)+' C '+(-r*.5)+' '+(hh/2+25)+' '+(r*.5)+' '+(hh/2+25)+' '+r+' '+(hh/2)+' L '+r+' '+(-hh/2)+' C '+(r*.5)+' '+(-hh/2+25)+' '+(-r*.5)+' '+(-hh/2+25)+' '+(-r)+' '+(-hh/2)+' Z"/><ellipse class="face" cx="0" cy="'+(hh/2)+'" rx="'+r+'" ry="'+(r*.32)+'"/><ellipse class="wire" cx="0" cy="'+(-hh/2)+'" rx="'+(r*.62)+'" ry="'+(r*.2)+'"/>'}
@@ -55,18 +58,20 @@ function drawPlate(){const w=220*S.size/80,h=145*S.size/80,d=35*S.size/80;return
 function drawFrame(){const a=150*S.size/80,b=105*S.size/80,t=18;return '<g fill="none" stroke="url(#metal)" stroke-width="'+t+'"><rect x="'+(-a/2)+'" y="'+(-b/2)+'" width="'+a+'" height="'+b+'" rx="5"/><path d="M '+(-a/2)+' '+(-b/2)+' L '+(-a/2+35)+' '+(-b/2-35)+' L '+(a/2+35)+' '+(-b/2-35)+' L '+(a/2)+' '+(-b/2)+'"/></g><rect class="wire" x="'+(-a/2+t)+'" y="'+(-b/2+t)+'" width="'+(a-2*t)+'" height="'+(b-2*t)+'"/>'}
 function drawBeam(){const w=210*S.size/80,h=80*S.size/80,d=45*S.size/80;return face((-w/2)+','+(-h/2)+' '+(w/2)+','+(-h/2)+' '+(w/2+d)+','+(-h/2-d*.3)+' '+(-w/2+d)+','+(-h/2-d*.3))+face((-w/2+d)+','+(-h/2-d*.3)+' '+(w/2+d)+','+(-h/2-d*.3)+' '+(w/2+d)+','+(h/2-d*.3)+' '+(-w/2+d)+','+(h/2-d*.3))+face((-w/2)+','+(-h/2)+' '+(-w/2+d)+','+(-h/2-d*.3)+' '+(-w/2+d)+','+(h/2-d*.3)+' '+(-w/2)+','+(h/2))}
 function render(){let c=S.shape==='box'?drawBox():S.shape==='tube'?drawTube():S.shape==='frame'?drawFrame():S.shape==='plate'?drawPlate():drawBeam();group.innerHTML=c;group.setAttribute('transform','rotate('+S.ry+' 0 0) scale('+(S.scale*(S.mode==='build'?S.width:1))+','+(S.scale*(S.mode==='build'?S.height:1))+') skewX('+(clamp(S.rx-18,-24,24)+(S.mode==='build'?(S.depth-1)*12:0))+')');document.getElementById('rx').textContent=Math.round(S.rx)+'°';document.getElementById('ry').textContent=Math.round(S.ry)+'°';document.getElementById('scaleRead').textContent=S.scale.toFixed(2)+'×';document.getElementById('sizeValue').textContent=S.size+'%';document.getElementById('modelName').textContent=names[S.shape].toUpperCase();document.getElementById('selected').textContent=names[S.shape];document.getElementById('resultText').textContent='Вариант '+S.shape+' · X '+Math.round(S.rx)+'° · Y '+Math.round(S.ry)+'° · масштаб '+S.scale.toFixed(2)+'×'}
-function act(a){if(a==='left')S.ry-=12;if(a==='right')S.ry+=12;if(a==='up')S.rx=clamp(S.rx-8,-50,70);if(a==='down')S.rx=clamp(S.rx+8,-50,70);render()}
+function act(a){if(S.mode==='build'){if(a==='left')buildStep(-55,0);if(a==='right')buildStep(55,0);if(a==='up')buildStep(0,-55);if(a==='down')buildStep(0,55);render();return}if(a==='left')S.ry-=12;if(a==='right')S.ry+=12;if(a==='up')S.rx=clamp(S.rx-8,-50,70);if(a==='down')S.rx=clamp(S.rx+8,-50,70);render()}
 document.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{document.querySelectorAll('.choice').forEach(x=>x.classList.remove('active'));b.classList.add('active');S.shape=b.dataset.shape;render()});
-document.querySelectorAll('.control').forEach(b=>b.onclick=()=>act(b.dataset.action));
+document.querySelectorAll('.control[data-action]').forEach(b=>b.onclick=()=>act(b.dataset.action));
+modeButtons.forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
 document.getElementById('size').oninput=e=>{S.size=+e.target.value;S.scale=S.size/80;render()};
-document.getElementById('reset').onclick=()=>{S.rx=18;S.ry=32;S.size=80;S.scale=1;document.getElementById('size').value=80;render()};
-document.getElementById('generate').onclick=()=>{S.ry=Math.round(Math.random()*90-45);S.rx=Math.round(Math.random()*55-15);S.size=Math.round(55+Math.random()*65);S.scale=S.size/80;document.getElementById('size').value=S.size;render();document.getElementById('gesture').textContent='новая вариация создана'};
+document.getElementById('reset').onclick=()=>{S.rx=18;S.ry=32;S.size=80;S.scale=1;S.width=1;S.height=1;S.depth=1;S.thickness=1;S.segments=0;setMode('view');document.getElementById('size').value=80;render()};
+document.getElementById('generate').onclick=()=>{S.ry=Math.round(Math.random()*90-45);S.rx=Math.round(Math.random()*55-15);S.size=Math.round(55+Math.random()*65);S.scale=S.size/80;S.width=.7+Math.random()*.6;S.height=.7+Math.random()*.6;S.depth=.7+Math.random()*.6;S.thickness=.7+Math.random()*.6;S.segments=Math.floor(Math.random()*5);document.getElementById('size').value=S.size;render();document.getElementById('gesture').textContent='новая геометрия создана'};
 document.getElementById('save').onclick=()=>{localStorage.setItem('aps_3d_idea',JSON.stringify({...S,savedAt:new Date().toISOString()}));document.getElementById('saved').textContent='идея сохранена локально'};
+document.getElementById('exportJson').onclick=()=>{const blob=new Blob([JSON.stringify({shape:S.shape,geometry:{width:S.width,height:S.height,depth:S.depth,thickness:S.thickness,segments:S.segments},view:{rx:S.rx,ry:S.ry,scale:S.scale}},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ai-product-geometry.json';a.click()};
 document.getElementById('export').onclick=()=>{const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="-260 -210 520 420"><defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5f8fb"/><stop offset="1" stop-color="#596775"/></linearGradient></defs>'+group.innerHTML+'</svg>';const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));a.download=names[S.shape].toLowerCase().replaceAll(' ','-')+'.svg';a.click()};
 viewer.addEventListener('pointerdown',e=>{S.drag=true;S.x=e.clientX;S.y=e.clientY;viewer.setPointerCapture(e.pointerId)});
 viewer.addEventListener('pointermove',e=>{if(!S.drag)return;const dx=e.clientX-S.x,dy=e.clientY-S.y;if(Math.abs(dx)>7){act(dx>0?'right':'left');S.x=e.clientX}if(Math.abs(dy)>7){act(dy>0?'down':'up');S.y=e.clientY}});
 viewer.addEventListener('pointerup',()=>S.drag=false);
-viewer.addEventListener('wheel',e=>{e.preventDefault();if(Math.abs(e.deltaX)>Math.abs(e.deltaY))act(e.deltaX>0?'right':'left');else{S.size=clamp(S.size+(e.deltaY<0?5:-5),40,130);S.scale=S.size/80;document.getElementById('size').value=S.size;render()}},{passive:false});
-document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')act('left');if(e.key==='ArrowRight')act('right');if(e.key==='ArrowUp')act('up');if(e.key==='ArrowDown')act('down')});
+viewer.addEventListener('wheel',e=>{e.preventDefault();if(S.mode==='build'){S.thickness=clamp(S.thickness+(e.deltaY<0?.08:-.08),.55,1.55);S.depth=clamp(S.depth+(e.deltaX<0?.04:-.04),.65,1.65);render();}else if(Math.abs(e.deltaX)>Math.abs(e.deltaY))act(e.deltaX>0?'right':'left');else{S.size=clamp(S.size+(e.deltaY<0?5:-5),40,130);S.scale=S.size/80;document.getElementById('size').value=S.size;render()}},{passive:false});
+document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')act('left');if(e.key==='ArrowRight')act('right');if(e.key==='ArrowUp')act('up');if(e.key==='ArrowDown')act('down');if(e.key==='b')setMode('build');if(e.key==='v')setMode('view')});
 render();
 </script></body></html>
