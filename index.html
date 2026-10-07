@@ -121,9 +121,6 @@ function renderFlow(project){
  const pct=Math.round(Object.values(project.pipeline).filter(Boolean).length/PIPELINE.length*100);
  flow.insertAdjacentHTML('afterbegin','<div class="muted" style="margin-bottom:4px">Прогресс системы: <b>'+pct+'%</b></div>')
 }
-function advanceProject(){
- const p=getProjects(),x=p.find(normalizeProject(y=>y).id===selectedId); // replaced below
-}
 function advanceSelected(){
  const p=getProjects().map(normalizeProject),x=p.find(x=>x.id===selectedId);if(!x)return;
  const next=PIPELINE.find(s=>!x.pipeline[s.id]);if(!next){notify('Проект уже завершён');return}
