@@ -150,10 +150,21 @@ function openAuth(){const e=document.getElementById('authModal');e.style.display
 function closeAuth(){const e=document.getElementById('authModal');e.style.display='none';e.classList.remove('show')}
 function demoAuth(){const email=document.getElementById('authEmail').value.trim();if(!email){notify('Укажи email');return}localStorage.setItem('aps_user',JSON.stringify({email,mode:'demo'}));document.getElementById('authState').textContent='Demo-пользователь: '+email+' · локальный workspace';notify('Demo-аккаунт активирован');closeAuth()}
 function refreshAuth(){const u=localStorage.getItem('aps_user'),state=document.getElementById('authState');if(u){try{state.textContent='Demo-пользователь: '+JSON.parse(u).email+' · локальный workspace'}catch{}}}
-function sendChat(){
+async function sendChat(){
  const i=document.getElementById('chatInput'),t=i.value.trim();if(!t)return;const b=document.getElementById('messages');b.insertAdjacentHTML('beforeend','<div class="msg me">'+escapeHtml(t)+'</div>');i.value='';
- const x=currentProject();setTimeout(()=>{const context=x?'Проект «'+escapeHtml(x.name)+'» выбран. ':'';
- b.insertAdjacentHTML('beforeend','<div class="msg">'+context+'AI Gateway подготовлен для серверного подключения. Сейчас я работаю в безопасном local fallback и связываю запрос с этапами Idea → Request → Concept → UI/UX → Analysis → Product.</div>');b.scrollTop=b.scrollHeight},350);b.scrollTop=b.scrollHeight
+ const x=currentProject(),context=x?'Контекст проекта: '+x.name+'; тип: '+x.type+'; аудитория: '+(x.audience||'не указана')+'; идея: '+(x.idea||'не указана')+'. ':'';
+ try{
+  const r=await fetch('/api/ai',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:[
+   {role:'system',content:'Ты AI Product Studio. Помогай превращать идеи в продуктовые решения. Отвечай кратко, структурно и привязывай рекомендации к Pipeline: Idea, Request, Concept, UI/UX, Analysis, Product.'},
+   {role:'user',content:context+t}
+  ]})});
+  const data=await r.json();
+  if(r.ok&&data.output_text){b.insertAdjacentHTML('beforeend','<div class="msg">'+escapeHtml(data.output_text).replace(/\n/g,'<br>')+'</div>')}
+  else throw new Error(data.code||'gateway')
+ }catch(e){
+  b.insertAdjacentHTML('beforeend','<div class="msg">'+context+'AI Gateway пока не настроен. Local fallback: свяжи запрос с этапами Idea → Request → Concept → UI/UX → Analysis → Product.</div>')
+ }
+ b.scrollTop=b.scrollHeight
 }
 function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
