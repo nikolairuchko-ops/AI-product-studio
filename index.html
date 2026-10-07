@@ -16,7 +16,7 @@ button,input,textarea,select{font:inherit}.app{min-height:100vh}.side{position:f
 <div class="app">
 <aside class="side">
 <div class="brand">AI <i>Product Studio</i></div>
-<div class="version">PRODUCT v1.0</div>
+<div class="version">PRODUCT v1.1 · SYSTEM</div>
 <nav class="nav">
 <button class="active" data-go="home">⌂ <span>Рабочий стол</span></button>
 <button data-go="projects">▦ <span>Проекты</span></button>
@@ -31,7 +31,7 @@ button,input,textarea,select{font:inherit}.app{min-height:100vh}.side{position:f
 <div class="mini"><b>Studio owner</b><br><a href="tel:+380976588900">097 658 89 00</a></div>
 </aside>
 <main class="main">
-<div class="top"><div class="status"><span class="dot"></span>Workspace готов</div><div class="pill">v1.0 · local workspace</div></div>
+<div class="top"><div class="status"><span class="dot"></span>Workspace готов</div><div class="pill">v1.1 · integrated workspace</div></div>
 <section id="home" class="hero">
 <div class="eyebrow">AI PRODUCT STUDIO</div>
 <h1>От идеи <span>до продукта.</span></h1>
@@ -69,28 +69,91 @@ button,input,textarea,select{font:inherit}.app{min-height:100vh}.side{position:f
 <section id="admin"><div class="title"><h2>Админ</h2><span class="muted">workspace settings</span></div>
 <div class="grid"><div class="card"><b>Хранилище</b><p class="muted">Проекты сохраняются локально в браузере.</p><button class="btn alt" onclick="exportData()">Экспорт JSON</button></div>
 <div class="card"><b>Безопасность</b><p class="muted">В v1.0 нет серверных ключей и внешнего API.</p><span class="badge">LOCAL</span></div>
-<div class="card"><b>Статус системы</b><p class="muted">Интерфейс и данные доступны офлайн.</p><span class="badge">ONLINE</span></div></div></section>
+<div class="card"><b>Статус системы</b><p class="muted">Интерфейс и данные доступны офлайн.</p><span class="badge">SYSTEM READY</span></div></div></section>
 <section id="contacts"><div class="title"><h2>Контакт</h2><span class="muted">прямая связь</span></div>
 <div class="contact"><div class="panel"><h3>097 658 89 00</h3><a href="tel:+380976588900">☎ Позвонить</a><a href="sms:+380976588900">✉ SMS</a><a href="viber://chat?number=%2B380976588900">◉ Viber</a></div>
-<div class="panel"><h3>AI Product Studio v1.0</h3><p class="muted">Рабочая клиентская версия. Следующий production-уровень — авторизация, облачная БД, AI API и генерация файлов.</p></div></div></section>
-<footer class="foot">© 2026 AI Product Studio · Product v1.0 · 097 658 89 00</footer>
+<div class="panel"><h3>AI Product Studio v1.0</h3><p class="muted">Рабочая клиентская версия. Система связана в единый локальный цикл: проект → pipeline → UI/UX → аналитика → AI-контекст → экспорт workspace.</p></div></div></section>
+<footer class="foot">© 2026 AI Product Studio · Product v1.1 · Integrated System · 097 658 89 00</footer>
 </main></div><div id="toast" class="toast"></div>
 <script>
+const PIPELINE=[
+ {id:'idea',name:'Идея',short:'01',hint:'Проблема и ценность'},
+ {id:'request',name:'Запрос',short:'02',hint:'Product Brief'},
+ {id:'concept',name:'Концепция',short:'03',hint:'MVP и сценарии'},
+ {id:'design',name:'UI / UX',short:'04',hint:'Экраны и компоненты'},
+ {id:'analysis',name:'Анализ',short:'05',hint:'Ценность и риски'},
+ {id:'product',name:'Продукт',short:'06',hint:'Готов к сборке'}
+];
+let selectedId=null;
 const nav=[...document.querySelectorAll('.nav button')];
 function go(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth'});nav.forEach(x=>x.classList.toggle('active',x.dataset.go===id))}
 nav.forEach(x=>x.onclick=()=>go(x.dataset.go));
 function notify(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove('show'),2300)}
 function getProjects(){try{return JSON.parse(localStorage.getItem('aps_projects')||'[]')}catch{return[]}}
 function saveProjects(p){localStorage.setItem('aps_projects',JSON.stringify(p))}
-function render(){const p=getProjects(),tb=document.getElementById('projectTable');document.getElementById('statProjects').textContent=p.length;document.getElementById('statActive').textContent=p.filter(x=>x.status!=='Готов').length;document.getElementById('statDone').textContent=p.filter(x=>x.status==='Готов').length;if(!p.length){tb.innerHTML='<tr><td colspan="5" class="muted">Пока нет проектов. Создай первый.</td></tr>';return}tb.innerHTML=p.map((x,i)=>'<tr><td><b>'+escapeHtml(x.name)+'</b><br><small class="muted">'+escapeHtml(x.audience||'—')+'</small></td><td>'+escapeHtml(x.type)+'</td><td><span class="badge">'+x.status+'</span></td><td>'+x.date+'</td><td><button class="btn alt" onclick="openProject('+i+')">Открыть</button></td></tr>').join('')}
-function createProject(){const name=document.getElementById('projectName').value.trim()||'Новый продукт';const type=document.getElementById('projectType').value;const audience=document.getElementById('audience').value.trim();const idea=document.getElementById('projectIdea').value.trim();const p=getProjects();p.unshift({id:Date.now(),name,type,audience,idea,status:'В работе',date:new Date().toLocaleDateString('ru-RU')});saveProjects(p);render();renderFlow(name,type,idea);notify('Проект «'+name+'» создан');go('projects')}
-function renderFlow(name,type,idea){document.getElementById('flow').innerHTML=[['01','Идея',name],['02','Запрос',idea?'Запрос сформирован':'Добавить описание'],['03','Концепция','MVP и сценарии'],['04','UI / UX','Экран и компоненты'],['05','Анализ','Ценность и риски'],['06','Продукт','Готов к сборке']].map((s,i)=>'<div class="step '+(i<3?'done ':'')+(i===2?'current':'')+'"><div class="num">'+s[0]+'</div><div><b>'+s[1]+'</b><div class="muted">'+escapeHtml(s[2])+'</div></div></div>').join('')}
-function openProject(i){const p=getProjects()[i];document.getElementById('projectName').value=p.name;document.getElementById('projectType').value=p.type;document.getElementById('audience').value=p.audience||'';document.getElementById('projectIdea').value=p.idea||'';renderFlow(p.name,p.type,p.idea);go('builder')}
-function clearBuilder(){['projectName','audience','projectIdea'].forEach(id=>document.getElementById(id).value='');renderFlow('Новый проект','', '')}
+function normalizeProject(x){x.pipeline=x.pipeline||{idea:true,request:false,concept:false,design:false,analysis:false,product:false};x.status=x.pipeline.product?'Готов':'В работе';return x}
+function render(){
+ const p=getProjects().map(normalizeProject);saveProjects(p);
+ const tb=document.getElementById('projectTable');
+ document.getElementById('statProjects').textContent=p.length;
+ document.getElementById('statActive').textContent=p.filter(x=>x.status!=='Готов').length;
+ document.getElementById('statDone').textContent=p.filter(x=>x.status==='Готов').length;
+ if(!p.length){tb.innerHTML='<tr><td colspan="5" class="muted">Пока нет проектов. Создай первый.</td></tr>';return}
+ tb.innerHTML=p.map((x,i)=>'<tr><td><b>'+escapeHtml(x.name)+'</b><br><small class="muted">'+escapeHtml(x.audience||'—')+'</small></td><td>'+escapeHtml(x.type)+'</td><td><span class="badge">'+x.status+'</span></td><td>'+x.date+'</td><td><button class="btn alt" onclick="openProject('+i+')">Открыть</button></td></tr>').join('')
+}
+function createProject(){
+ const name=document.getElementById('projectName').value.trim()||'Новый продукт';
+ const type=document.getElementById('projectType').value;
+ const audience=document.getElementById('audience').value.trim();
+ const idea=document.getElementById('projectIdea').value.trim();
+ const p=getProjects();
+ const project={id:Date.now(),name,type,audience,idea,status:'В работе',date:new Date().toLocaleDateString('ru-RU'),pipeline:{idea:true,request:!!idea,concept:false,design:false,analysis:false,product:false}};
+ p.unshift(project);saveProjects(p);selectedId=project.id;render();renderFlow(project);updateIntelligence(project);
+ notify('Проект «'+name+'» создан и подключён к системе');go('projects')
+}
+function renderFlow(project){
+ project=project||{name:'Новый проект',idea:'',pipeline:{idea:true,request:false,concept:false,design:false,analysis:false,product:false}};
+ const flow=document.getElementById('flow');
+ flow.innerHTML=PIPELINE.map((s,i)=>{
+  const done=!!project.pipeline[s.id], current=!done&&PIPELINE.slice(0,i).every(x=>project.pipeline[x.id]);
+  return '<div class="step '+(done?'done ':'')+(current?'current':'')+'"><div class="num">'+s.short+'</div><div style="flex:1"><b>'+s.name+'</b><div class="muted">'+escapeHtml(done?(s.id==='idea'?project.name:s.id==='request'?(project.idea?'Brief сформирован':'Добавьте описание'):s.hint):s.hint)+'</div></div>'+(current?'<button class="btn alt" onclick="advanceProject()">Завершить</button>':'')+'</div>'
+ }).join('');
+ const pct=Math.round(Object.values(project.pipeline).filter(Boolean).length/PIPELINE.length*100);
+ flow.insertAdjacentHTML('afterbegin','<div class="muted" style="margin-bottom:4px">Прогресс системы: <b>'+pct+'%</b></div>')
+}
+function advanceProject(){
+ const p=getProjects(),x=p.find(normalizeProject(y=>y).id===selectedId); // replaced below
+}
+function advanceSelected(){
+ const p=getProjects().map(normalizeProject),x=p.find(x=>x.id===selectedId);if(!x)return;
+ const next=PIPELINE.find(s=>!x.pipeline[s.id]);if(!next){notify('Проект уже завершён');return}
+ x.pipeline[next.id]=true;if(next.id==='product')x.status='Готов';saveProjects(p);render();renderFlow(x);updateIntelligence(x);notify('Этап «'+next.name+'» завершён');go(next.id==='design'?'design':next.id==='analysis'?'analysis':'builder')
+}
+window.advanceProject=advanceSelected;
+function openProject(i){
+ const p=getProjects().map(normalizeProject),x=p[i];if(!x)return;selectedId=x.id;
+ document.getElementById('projectName').value=x.name;document.getElementById('projectType').value=x.type;document.getElementById('audience').value=x.audience||'';document.getElementById('projectIdea').value=x.idea||'';
+ renderFlow(x);updateIntelligence(x);go('builder');notify('Проект «'+x.name+'» выбран')
+}
+function updateIntelligence(project){
+ const title=document.querySelector('#analysis .title');
+ if(title&&!title.dataset.ready){title.insertAdjacentHTML('afterend','<div id="systemContext" class="panel" style="margin-bottom:12px"></div>');title.dataset.ready='1'}
+ const box=document.getElementById('systemContext');if(!box)return;
+ const done=Object.values(project.pipeline).filter(Boolean).length,pct=Math.round(done/PIPELINE.length*100);
+ box.innerHTML='<b>Системный контекст</b><p class="muted" style="margin:6px 0 0">Проект: <b>'+escapeHtml(project.name)+'</b> · '+pct+'% pipeline · следующий этап: '+escapeHtml((PIPELINE.find(s=>!project.pipeline[s.id])||{name:'Релиз'}).name)+'</p>'
+}
+function clearBuilder(){['projectName','audience','projectIdea'].forEach(id=>document.getElementById(id).value='');selectedId=null;renderFlow();notify('Конструктор очищен')}
 function useTemplate(t){document.getElementById('projectIdea').value=t;go('builder');notify('Шаблон добавлен в конструктор')}
-function exportData(){const blob=new Blob([JSON.stringify(getProjects(),null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ai-product-studio-projects.json';a.click();URL.revokeObjectURL(a.href);notify('JSON экспортирован')}
-function sendChat(){const i=document.getElementById('chatInput'),t=i.value.trim();if(!t)return;const b=document.getElementById('messages');b.insertAdjacentHTML('beforeend','<div class="msg me">'+escapeHtml(t)+'</div>');i.value='';setTimeout(()=>{b.insertAdjacentHTML('beforeend','<div class="msg">Для production я бы перевёл запрос в Product Brief: цель → аудитория → MVP → UI/UX → API → тестирование → релиз. Могу начать с конструктора проекта.</div>');b.scrollTop=b.scrollHeight},350);b.scrollTop=b.scrollHeight}
+function exportData(){const payload={app:'AI Product Studio',version:'1.1',exportedAt:new Date().toISOString(),projects:getProjects()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ai-product-studio-workspace.json';a.click();URL.revokeObjectURL(a.href);notify('Workspace экспортирован')}
+function sendChat(){
+ const i=document.getElementById('chatInput'),t=i.value.trim();if(!t)return;const b=document.getElementById('messages');
+ b.insertAdjacentHTML('beforeend','<div class="msg me">'+escapeHtml(t)+'</div>');i.value='';
+ const p=getProjects().map(normalizeProject),x=p.find(x=>x.id===selectedId);
+ setTimeout(()=>{const context=x?'Проект «'+escapeHtml(x.name)+'» сейчас на '+Math.round(Object.values(x.pipeline).filter(Boolean).length/6*100)+'% pipeline. ':'';
+ b.insertAdjacentHTML('beforeend','<div class="msg">'+context+'Я связал запрос с рабочим циклом Studio: Idea → Request → Concept → UI/UX → Analysis → Product. Следующий практический шаг — завершить текущий этап через Pipeline.</div>');b.scrollTop=b.scrollHeight},350);b.scrollTop=b.scrollHeight
+}
 function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
-render();renderFlow('Новый проект','','');
+render();
+const initial=getProjects().map(normalizeProject)[0];if(initial){selectedId=initial.id;renderFlow(initial);updateIntelligence(initial)}else renderFlow();
 </script></body></html>
