@@ -464,6 +464,51 @@
       accent-color: var(--accent);
     }
 
+    .share-panel {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .share-heading {
+      margin: 0;
+      color: var(--soft);
+      font-size: 0.82rem;
+      font-weight: 650;
+    }
+
+    .share-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .share-actions .btn {
+      padding: 0.68rem 0.9rem;
+      font-size: 0.72rem;
+    }
+
+    .share-actions .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.48;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .share-actions a[aria-disabled="true"] {
+      pointer-events: none;
+      opacity: 0.48;
+    }
+
+    .share-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.72rem;
+      line-height: 1.5;
+    }
+
     .section {
       padding: 44px 0;
     }
@@ -893,10 +938,21 @@
                 <button class="btn record-button" id="record-toggle" type="button" disabled aria-pressed="false">Записать голос</button>
                 <button class="btn recording-clear" id="recording-clear" type="button" disabled>Удалить запись</button>
               </div>
-              <p class="recording-status" id="recording-status" role="status" aria-live="polite">Включите микрофон, чтобы записать голос с роботизированным тембром.</p>
-              <audio class="voice-playback" id="voice-playback" controls preload="metadata" hidden aria-label="Прослушать запись роботизированного голоса"></audio>
+              <p class="recording-status" id="recording-status" role="status" aria-live="polite">Включите микрофон, чтобы записать роботизированный голос в MP3.</p>
+              <audio class="voice-playback" id="voice-playback" controls preload="metadata" hidden aria-label="Прослушать запись роботизированного голоса в MP3"></audio>
+              <div class="share-panel" aria-label="Отправка записи">
+                <p class="share-heading">Отправить запись</p>
+                <div class="share-actions">
+                  <button class="btn primary" id="share-recording" type="button" disabled>Поделиться аудио</button>
+                  <a class="btn" id="download-recording" download aria-disabled="true" tabindex="-1">Скачать файл</a>
+                  <a class="btn" id="email-recording" aria-disabled="true" tabindex="-1">На e-mail</a>
+                  <a class="btn" id="telegram-recording" target="_blank" rel="noopener noreferrer" aria-disabled="true" tabindex="-1">В Telegram</a>
+                  <a class="btn" id="sms-recording" aria-disabled="true" tabindex="-1">В сообщения</a>
+                </div>
+                <p class="share-note" id="share-status" role="status" aria-live="polite">После записи можно отправить аудио через меню приложений телефона или скачать файл и прикрепить его вручную.</p>
+              </div>
             </div>
-            <p class="privacy-note"><strong>Приватность:</strong> голос обрабатывается и записывается только в браузере. Запись не отправляется на сервер и удаляется при перезагрузке страницы. Выключите микрофон, чтобы завершить работу.</p>
+            <p class="privacy-note"><strong>Приватность:</strong> голос обрабатывается и записывается только в браузере. MP3 не отправляется на сервер и удаляется при перезагрузке страницы. Выключите микрофон, чтобы завершить работу. Кодировщик LAME 1.2.1 — <a href="https://www.gnu.org/licenses/lgpl-3.0.html" target="_blank" rel="noopener noreferrer">LGPL-3.0</a>, <a href="https://lame.sourceforge.io/" target="_blank" rel="noopener noreferrer">сайт проекта</a>.</p>
           </section>
         </div>
       </div>
@@ -997,6 +1053,7 @@
       </div>
     </div>
   </footer>
+  <script src="assets/lame.all.js"></script>
   <script>
     const menuToggle = document.querySelector(".menu-toggle");
     const navigation = document.querySelector("#site-navigation");
@@ -1007,6 +1064,12 @@
     const recordingClear = document.querySelector("#recording-clear");
     const recordingStatus = document.querySelector("#recording-status");
     const voicePlayback = document.querySelector("#voice-playback");
+    const shareRecording = document.querySelector("#share-recording");
+    const downloadRecording = document.querySelector("#download-recording");
+    const emailRecording = document.querySelector("#email-recording");
+    const telegramRecording = document.querySelector("#telegram-recording");
+    const smsRecording = document.querySelector("#sms-recording");
+    const shareStatus = document.querySelector("#share-status");
     const voicePreset = document.querySelector("#voice-preset");
     const voicePresetDescription = document.querySelector("#voice-preset-description");
     const voiceCard = document.querySelector("#voice-lab");
@@ -1019,10 +1082,13 @@
     let animationFrame = null;
     let mediaRecorder = null;
     let recordingChunks = [];
+    let recordingBlob = null;
     let recordingUrl = null;
     let recordingVoiceName = "";
+    let recordingFileName = "";
     let stopMicrophoneAfterRecording = false;
     let stopMicrophoneMessage = "Микрофон выключен.";
+    let isConvertingRecording = false;
 
     const voicePresets = {
       classic: {
@@ -1078,7 +1144,6 @@
       activeVoiceEffect.carrier.frequency.setTargetAtTime(preset.carrier, transitionTime, smoothing);
       activeVoiceEffect.modulationDepth.gain.setTargetAtTime(preset.modulationDepth, transitionTime, smoothing);
       activeVoiceEffect.modulationOffset.offset.setTargetAtTime(preset.modulationOffset, transitionTime, smoothing);
-
       const curve = new Float32Array(2048);
       for (let index = 0; index < curve.length; index += 1) {
         const input = (index * 2) / (curve.length - 1) - 1;
@@ -1110,7 +1175,7 @@
       ringModulator.gain.setValueAtTime(0, audioContext.currentTime);
 
       const carrier = audioContext.createOscillator();
-      carrier.type = "sine";
+      carrier.type = preset.oscillator;
       carrier.frequency.value = preset.carrier;
 
       const modulationDepth = audioContext.createGain();
@@ -1136,12 +1201,124 @@
       voicePlayback.removeAttribute("src");
       voicePlayback.load();
       voicePlayback.hidden = true;
+      recordingBlob = null;
+      recordingFileName = "";
       if (recordingUrl) {
         URL.revokeObjectURL(recordingUrl);
         recordingUrl = null;
       }
+      setShareControlsEnabled(false);
       recordingClear.disabled = true;
       recordingStatus.textContent = "Запись удалена.";
+      shareStatus.textContent = "Запись удалена. Новое аудио можно будет отправить после следующей записи.";
+    }
+
+    function setShareControlsEnabled(enabled) {
+      shareRecording.disabled = !enabled;
+      [downloadRecording, emailRecording, telegramRecording, smsRecording].forEach((link) => {
+        link.setAttribute("aria-disabled", String(!enabled));
+        if (enabled) {
+          link.removeAttribute("tabindex");
+        } else {
+          link.setAttribute("tabindex", "-1");
+        }
+      });
+      if (!enabled) {
+        downloadRecording.removeAttribute("download");
+        [downloadRecording, emailRecording, telegramRecording, smsRecording].forEach((link) => {
+          link.removeAttribute("href");
+        });
+      }
+    }
+
+    async function encodeRecordingAsMp3(recording) {
+      if (!window.lamejs?.Mp3Encoder) {
+        throw new Error("LAME MP3 encoder did not load.");
+      }
+      if (!audioContext || audioContext.state === "closed") {
+        throw new Error("Audio context is unavailable for MP3 conversion.");
+      }
+
+      const decoded = await audioContext.decodeAudioData(await recording.arrayBuffer());
+      const encoder = new window.lamejs.Mp3Encoder(1, 44100, 128);
+      const frameSize = 1152;
+      const outputLength = Math.ceil(decoded.length * 44100 / decoded.sampleRate);
+      const sourceChannels = Array.from({ length: decoded.numberOfChannels }, (_, index) => decoded.getChannelData(index));
+      const mp3Chunks = [];
+      const samples = new Int16Array(frameSize);
+
+      for (let offset = 0; offset < outputLength; offset += frameSize) {
+        const sampleCount = Math.min(frameSize, outputLength - offset);
+        for (let index = 0; index < sampleCount; index += 1) {
+          const sourcePosition = (offset + index) * decoded.sampleRate / 44100;
+          const sourceIndex = Math.min(Math.floor(sourcePosition), decoded.length - 1);
+          const fraction = sourcePosition - sourceIndex;
+          let sample = 0;
+          for (const channel of sourceChannels) {
+            const first = channel[sourceIndex] || 0;
+            const second = channel[Math.min(sourceIndex + 1, decoded.length - 1)] || 0;
+            sample += first + (second - first) * fraction;
+          }
+          sample /= sourceChannels.length;
+          samples[index] = Math.max(-32768, Math.min(32767, Math.round(sample * (sample < 0 ? 32768 : 32767))));
+        }
+
+        const frame = encoder.encodeBuffer(samples.subarray(0, sampleCount));
+        if (frame.length) mp3Chunks.push(frame);
+        if (offset > 0 && offset % (frameSize * 64) === 0) {
+          recordingStatus.textContent = `Преобразуем запись в MP3… ${Math.round(offset / outputLength * 100)}%`;
+          await new Promise((resolve) => window.setTimeout(resolve, 0));
+        }
+      }
+
+      const finalFrame = encoder.flush();
+      if (finalFrame.length) mp3Chunks.push(finalFrame);
+      if (!mp3Chunks.length) throw new Error("MP3 conversion returned an empty file.");
+      return new Blob(mp3Chunks, { type: "audio/mpeg" });
+    }
+
+    function configureRecordingShare(blob) {
+      recordingBlob = blob;
+      recordingFileName = `ai-product-studio-${voicePreset.value}.mp3`;
+      downloadRecording.href = recordingUrl;
+      downloadRecording.download = recordingFileName;
+      emailRecording.href = `mailto:0976588900nik@gmail.com?subject=${encodeURIComponent("Запись голоса")}&body=${encodeURIComponent(`Здравствуйте! Отправляю запись «${recordingVoiceName}».\n\nПрикрепите скачанный файл: ${recordingFileName}`)}`;
+
+      const shareText = `Запись «${recordingVoiceName}». Скачайте файл ${recordingFileName} и прикрепите его к сообщению.`;
+      telegramRecording.href = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(shareText)}`;
+      smsRecording.href = `sms:0976588900?body=${encodeURIComponent(`Запись «${recordingVoiceName}»: прикрепите скачанный файл ${recordingFileName}.`)}`;
+      setShareControlsEnabled(true);
+      shareStatus.textContent = "На телефоне нажмите «Поделиться аудио» и выберите Telegram, почту или приложение сообщений.";
+    }
+
+    async function shareSavedRecording() {
+      if (!recordingBlob || !recordingFileName) return;
+      if (typeof File === "undefined" || !navigator.share || !navigator.canShare) {
+        shareStatus.textContent = "Передача файла из этого браузера не поддерживается. Скачайте аудио и прикрепите его в Telegram, письме или сообщении.";
+        return;
+      }
+
+      const audioFile = new File([recordingBlob], recordingFileName, { type: recordingBlob.type });
+      if (!navigator.canShare({ files: [audioFile] })) {
+        shareStatus.textContent = "Этот браузер не поддерживает отправку аудиофайла напрямую. Скачайте его и прикрепите в нужном приложении.";
+        return;
+      }
+
+      try {
+        await navigator.share({
+          files: [audioFile],
+          title: "Запись голоса",
+          text: `Запись «${recordingVoiceName}» из AI Product Studio`
+        });
+        shareStatus.textContent = "Меню приложений открыто — выберите, куда отправить аудиофайл.";
+      } catch (error) {
+        if (error.name === "AbortError") {
+          shareStatus.textContent = "Отправка отменена. Запись осталась доступна на этой странице.";
+          return;
+        }
+        console.error("Не удалось открыть системное меню отправки:", error);
+        shareStatus.textContent = "Не удалось открыть меню отправки. Скачайте файл и прикрепите его вручную.";
+      }
     }
 
     function releaseMicrophone(message = "Микрофон выключен.") {
@@ -1172,32 +1349,57 @@
       drawVisualizer();
     }
 
-    function finishRecording() {
+    async function finishRecording() {
       const recordingType = mediaRecorder?.mimeType || "audio/webm";
-      const recording = new Blob(recordingChunks, { type: recordingType });
+      const sourceRecording = new Blob(recordingChunks, { type: recordingType });
       recordingChunks = [];
       mediaRecorder = null;
-      recordToggle.disabled = !microphoneStream;
-      voicePreset.disabled = false;
       recordToggle.classList.remove("is-recording");
       recordToggle.textContent = "Записать ещё раз";
       recordToggle.setAttribute("aria-pressed", "false");
 
-      if (recording.size > 0) {
-        if (recordingUrl) URL.revokeObjectURL(recordingUrl);
-        recordingUrl = URL.createObjectURL(recording);
-        voicePlayback.src = recordingUrl;
-        voicePlayback.hidden = false;
-        recordingClear.disabled = false;
-        recordingStatus.textContent = `Готово — запись «${recordingVoiceName}». Нажмите воспроизведение, чтобы прослушать.`;
-      } else {
+      if (!sourceRecording.size) {
+        recordingBlob = null;
+        recordingFileName = "";
+        setShareControlsEnabled(false);
+        recordingClear.disabled = true;
         recordingStatus.textContent = "Не удалось сохранить запись. Попробуйте ещё раз.";
+      } else {
+        isConvertingRecording = true;
+        recordToggle.disabled = true;
+        setShareControlsEnabled(false);
+        recordingClear.disabled = true;
+        recordingStatus.textContent = "Преобразуем запись в MP3…";
+
+        try {
+          const mp3Recording = await encodeRecordingAsMp3(sourceRecording);
+          if (recordingUrl) URL.revokeObjectURL(recordingUrl);
+          recordingUrl = URL.createObjectURL(mp3Recording);
+          voicePlayback.src = recordingUrl;
+          voicePlayback.hidden = false;
+          configureRecordingShare(mp3Recording);
+          recordingClear.disabled = false;
+          recordingStatus.textContent = `Готово — запись «${recordingVoiceName}» в MP3. Нажмите воспроизведение, чтобы прослушать.`;
+        } catch (error) {
+          console.error("Не удалось преобразовать голос в MP3:", error);
+          recordingBlob = null;
+          recordingFileName = "";
+          setShareControlsEnabled(false);
+          recordingClear.disabled = true;
+          recordingStatus.textContent = "Не удалось преобразовать запись в MP3. Проверьте поддержку аудио в браузере и попробуйте ещё раз.";
+        } finally {
+          isConvertingRecording = false;
+          recordToggle.disabled = !microphoneStream;
+          voicePreset.disabled = false;
+        }
       }
 
       if (stopMicrophoneAfterRecording) {
         stopMicrophoneAfterRecording = false;
         releaseMicrophone(stopMicrophoneMessage);
       }
+      recordToggle.disabled = !microphoneStream;
+      voicePreset.disabled = false;
     }
 
     function startRecording() {
@@ -1209,6 +1411,10 @@
         recordingStatus.textContent = "Запись не поддерживается этим браузером. Попробуйте актуальную версию Chrome, Edge или Firefox.";
         return;
       }
+      if (!window.lamejs?.Mp3Encoder) {
+        recordingStatus.textContent = "MP3-кодировщик не загрузился. Обновите страницу и попробуйте ещё раз.";
+        return;
+      }
 
       const supportedType = [
         "audio/webm;codecs=opus",
@@ -1217,6 +1423,7 @@
       ].find((type) => MediaRecorder.isTypeSupported(type));
 
       try {
+        clearSavedRecording();
         mediaRecorder = supportedType
           ? new MediaRecorder(recordingDestination.stream, { mimeType: supportedType })
           : new MediaRecorder(recordingDestination.stream);
@@ -1318,11 +1525,11 @@
     }
 
     function stopMicrophone(message = "Микрофон выключен.") {
-      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      if (isConvertingRecording || (mediaRecorder && mediaRecorder.state !== "inactive")) {
         stopMicrophoneAfterRecording = true;
         stopMicrophoneMessage = message;
         voiceStatus.textContent = "Завершаем запись и выключаем микрофон…";
-        stopRecording();
+        if (mediaRecorder && mediaRecorder.state !== "inactive") stopRecording();
         return;
       }
       releaseMicrophone(message);
@@ -1426,6 +1633,7 @@
 
     applyVoicePreset();
     recordingClear.addEventListener("click", clearSavedRecording);
+    shareRecording.addEventListener("click", shareSavedRecording);
     voicePreset.addEventListener("change", () => {
       applyVoicePreset();
       if (microphoneStream) {
