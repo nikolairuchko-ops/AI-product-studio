@@ -1,8 +1,10 @@
 <!doctype html>
-<html lang="ru"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>AI Product Studio — 3D Generator</title>
-<meta name="description" content="Интерактивный генератор простых 3D-форм из металла.">
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI Product Studio — 3D Generator v4.2</title>
+<meta name="description" content="Интерактивный WebGL-конструктор простых металлических 3D-форм.">
 <style>
 :root{--bg:#05070b;--panel:#0d121a;--line:#273241;--text:#edf4fb;--muted:#8c9aaa;--accent:#45d8ff}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% 0,#162233,#05070b 48%);color:var(--text);font:14px/1.45 Inter,system-ui,sans-serif}
@@ -10,68 +12,146 @@ button,input{font:inherit;color:inherit}.app{min-height:100vh}.top{height:64px;b
 .main{width:min(1180px,100%);margin:auto;padding:22px 16px 35px}.hero{display:flex;justify-content:space-between;gap:18px;align-items:end;margin-bottom:15px}.hero h1{font-size:clamp(30px,6vw,54px);line-height:1;margin:0 0 8px;letter-spacing:-2px}.hero p{margin:0;color:var(--muted);max-width:690px}.tag{border:1px solid var(--line);border-radius:999px;padding:7px 10px;color:var(--accent);font-size:10px;white-space:nowrap}
 .generator{display:grid;grid-template-columns:240px minmax(0,1fr) 240px;gap:12px}.panel{background:#0b1018e8;border:1px solid var(--line);border-radius:18px;padding:14px}.panel h3{margin:0 0 10px;font-size:13px}.choices{display:grid;gap:7px}.choice{width:100%;text-align:left;border:1px solid #253143;background:#0a0f16;border-radius:11px;padding:10px;cursor:pointer}.choice:hover,.choice.active{border-color:#3fcce9;background:#101b26}.choice small{display:block;color:var(--muted);margin-top:2px}
 .stage{min-height:600px;display:flex;flex-direction:column;overflow:hidden}.stageHead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid #1d2733}.stageHead b{font-size:12px}.stageHead span{font-size:10px;color:var(--muted)}
-.viewer{position:relative;flex:1;min-height:470px;display:grid;place-items:center;touch-action:none;overflow:hidden;background:radial-gradient(circle at center,#182331 0,#0b1118 46%,#080c12 100%);border-radius:14px;margin-top:10px}.viewer:before{content:'';position:absolute;inset:12%;background:linear-gradient(#ffffff04 1px,transparent 1px),linear-gradient(90deg,#ffffff04 1px,transparent 1px);background-size:32px 32px;transform:perspective(500px) rotateX(60deg) translateY(90px);opacity:.6}.hint{position:absolute;left:12px;right:12px;bottom:12px;text-align:center;color:#738396;font-size:10px;pointer-events:none}
-svg{width:min(82%,520px);height:auto;overflow:visible;filter:drop-shadow(0 25px 28px #0009)}.face{fill:url(#metal);stroke:#e7eef5;stroke-opacity:.42;stroke-width:1.2}.edge{fill:none;stroke:#79a1b9;stroke-width:1.5;opacity:.8}.wire{fill:none;stroke:#55dfff;stroke-width:1.2;stroke-dasharray:5 5;opacity:.55}
+.viewer{position:relative;flex:1;min-height:470px;touch-action:none;overflow:hidden;background:radial-gradient(circle at center,#182331 0,#0b1118 46%,#080c12 100%);border-radius:14px;margin-top:10px;cursor:grab}.viewer.dragging{cursor:grabbing}.viewer:before{content:'';position:absolute;inset:12%;background:linear-gradient(#ffffff04 1px,transparent 1px),linear-gradient(90deg,#ffffff04 1px,transparent 1px);background-size:32px 32px;transform:perspective(500px) rotateX(60deg) translateY(90px);opacity:.6;pointer-events:none}.hint{position:absolute;left:12px;right:12px;bottom:12px;text-align:center;color:#738396;font-size:10px;pointer-events:none;z-index:2}.webgl{position:absolute;inset:0;width:100%;height:100%;display:block}
 .controls{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}.control{border:1px solid var(--line);background:#0a0f16;border-radius:10px;padding:9px;cursor:pointer}.control b{display:block;font-size:11px}.control small{color:var(--muted);font-size:9px}.range{width:100%;accent-color:var(--accent)}.metric{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1c2631;color:var(--muted);font-size:11px}.metric b{color:var(--text)}.actions{display:grid;gap:7px;margin-top:12px}.btn{border:0;border-radius:10px;padding:10px 12px;background:linear-gradient(90deg,#147f9d,#45d8ff);color:#041016;font-weight:800;cursor:pointer}.btn.alt{background:#0b121b;border:1px solid var(--line);color:var(--text)}.bottom{display:flex;justify-content:space-between;gap:12px;margin-top:12px;flex-wrap:wrap}.foot{text-align:center;color:#5d6a78;font-size:10px;padding:25px}
+.badge{display:inline-flex;gap:5px;align-items:center;border:1px solid #263545;border-radius:999px;padding:4px 7px;color:#8fa0b1;font-size:9px}.badge i{width:6px;height:6px;border-radius:50%;background:#50e3a4}.loading{position:absolute;top:10px;left:10px;z-index:3;color:#8fa0b1;font-size:9px;background:#080d14cc;border:1px solid #24303d;border-radius:999px;padding:5px 8px}
 @media(max-width:900px){.generator{grid-template-columns:1fr}.stage{order:-1;min-height:560px}.viewer{min-height:430px}.hero{align-items:start;flex-direction:column}.tag{align-self:flex-start}}
 @media(max-width:520px){.top{height:56px;padding:0 12px}.main{padding:14px 10px}.stage{min-height:510px}.viewer{min-height:390px}.panel{border-radius:14px}.hero h1{font-size:34px}}
-</style></head>
-<body><div class="app">
-<header class="top"><div class="brand">AI <span>Product Studio</span></div><div class="status"><i class="dot"></i>3D GENERATOR · v4.1</div></header>
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="brand">AI <span>Product Studio</span></div><div class="status"><i class="dot"></i>3D GENERATOR · v4.2 WEBGL</div></header>
 <main class="main">
-<section class="hero"><div><h1>Идея → форма</h1><p>Studio теперь работает как жестовый конструктор: выбери базовую форму, включи режим конструирования и меняй геометрию прямо касанием, свайпом и скроллом.</p></div><div class="tag">TOUCH / SCROLL / VECTOR</div></section>
+<section class="hero"><div><h1>Идея → форма</h1><p>Настоящий 3D-конструктор: выбери базовую форму и меняй геометрию касанием. Здесь уже не векторная имитация — объект построен как WebGL-модель с реальными гранями, материалом и освещением.</p></div><div class="tag">WEBGL / TOUCH / GEOMETRY</div></section>
 <section class="generator">
 <aside class="panel"><h3>1 · Выбери форму</h3><div class="choices" id="shapeChoices">
-<button class="choice active" data-shape="box">▣ Блок<small>прямоугольная форма</small></button>
+<button class="choice active" data-shape="box">▣ Блок<small>реальный box mesh</small></button>
 <button class="choice" data-shape="tube">◯ Труба<small>цилиндрический профиль</small></button>
-<button class="choice" data-shape="frame">□ Рама<small>простая конструкция</small></button>
+<button class="choice" data-shape="frame">□ Рама<small>профильная конструкция</small></button>
 <button class="choice" data-shape="plate">▱ Пластина<small>листовой металл</small></button>
-<button class="choice" data-shape="beam">╱ Балка<small>профиль / конструктив</small></button></div>
-<h3 style="margin-top:18px">2 · Режим</h3><div class="controls" style="grid-template-columns:1fr 1fr;margin:0 0 10px"><button class="control mode active" data-mode="view"><b>◉ Вид</b><small>вращение / масштаб</small></button><button class="control mode" data-mode="build"><b>✦ Конструктор</b><small>жест = геометрия</small></button></div><h3>3 · Размер</h3><input id="size" class="range" type="range" min="40" max="130" value="80">
-<div class="metric"><span>Масштаб</span><b id="sizeValue">80%</b></div>
-<div class="actions"><button class="btn" id="generate">Сгенерировать</button><button class="btn alt" id="reset">Сбросить вид</button></div></aside>
+<button class="choice" data-shape="beam">╱ Балка<small>конструктивный профиль</small></button></div>
+<h3 style="margin-top:18px">2 · Режим</h3><div class="controls" style="grid-template-columns:1fr 1fr;margin:0 0 10px"><button class="control mode active" data-mode="view"><b>◉ Вид</b><small>орбита / масштаб</small></button><button class="control mode" data-mode="build"><b>✦ Конструктор</b><small>жест = геометрия</small></button></div>
+<h3>3 · Размер</h3><input id="size" class="range" type="range" min="40" max="140" value="80"><div class="metric"><span>Масштаб</span><b id="sizeValue">80%</b></div>
+<div class="actions"><button class="btn" id="generate">Сгенерировать</button><button class="btn alt" id="reset">Сбросить</button></div></aside>
 
 <section class="panel stage"><div class="stageHead"><b id="modelName">METAL BLOCK</b><span id="gesture">двигай пальцем / скролль</span></div>
-<div class="viewer" id="viewer"><svg id="model" viewBox="-260 -210 520 420" aria-label="Векторная 3D модель">
-<defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5f8fb"/><stop offset=".42" stop-color="#aab6c1"/><stop offset="1" stop-color="#596775"/></linearGradient></defs><g id="modelGroup"></g></svg>
-<div class="hint" id="hint">Режим «Вид»: свайп вращает · вертикальный жест меняет наклон · колесо меняет масштаб</div></div>
-<div class="controls"><button class="control" data-action="left"><b>◀ Поворот</b><small>левая сторона</small></button><button class="control" data-action="right"><b>▶ Поворот</b><small>правая сторона</small></button><button class="control" data-action="up"><b>▲ Наклон</b><small>верх экрана</small></button><button class="control" data-action="down"><b>▼ Наклон</b><small>низ экрана</small></button></div></section>
+<div class="viewer" id="viewer"><canvas class="webgl" id="canvas"></canvas><div class="loading" id="loading">3D engine · loading</div><div class="hint" id="hint">Вид: свайп вращает модель · pinch/колесо меняет масштаб</div></div>
+<div class="controls"><button class="control" data-action="left"><b>◀ Поворот</b><small>влево</small></button><button class="control" data-action="right"><b>▶ Поворот</b><small>вправо</small></button><button class="control" data-action="up"><b>▲ Наклон</b><small>вверх</small></button><button class="control" data-action="down"><b>▼ Наклон</b><small>вниз</small></button></div></section>
 
-<aside class="panel"><h3>4 · Параметры</h3><div class="metric"><span>Поворот X</span><b id="rx">18°</b></div><div class="metric"><span>Поворот Y</span><b id="ry">32°</b></div><div class="metric"><span>Масштаб</span><b id="scaleRead">1.00×</b></div><div class="metric"><span>Материал</span><b>Metal</b></div><div class="metric"><span>Представление</span><b>Vector 3D</b></div>
-<h3 style="margin-top:18px">5 · Результат</h3><p id="resultText" style="color:var(--muted);font-size:11px">В режиме «Конструктор» жесты меняют размеры и профиль модели, а не только её положение.</p>
-<div class="actions"><button class="btn alt" id="save">Сохранить идею</button><button class="btn alt" id="export">Экспорт SVG</button><button class="btn alt" id="exportJson">Экспорт JSON</button></div></aside></section>
+<aside class="panel"><h3>4 · Параметры</h3><div class="metric"><span>Поворот X</span><b id="rx">18°</b></div><div class="metric"><span>Поворот Y</span><b id="ry">32°</b></div><div class="metric"><span>Масштаб</span><b id="scaleRead">1.00×</b></div><div class="metric"><span>Ширина</span><b id="widthRead">1.00×</b></div><div class="metric"><span>Высота</span><b id="heightRead">1.00×</b></div><div class="metric"><span>Глубина</span><b id="depthRead">1.00×</b></div><div class="metric"><span>Толщина</span><b id="thicknessRead">1.00×</b></div>
+<div style="display:flex;gap:6px;margin-top:12px"><span class="badge"><i></i> WebGL</span><span class="badge">Metal</span><span class="badge">Mesh</span></div>
+<h3 style="margin-top:18px">5 · Результат</h3><p id="resultText" style="color:var(--muted);font-size:11px">В режиме «Конструктор» жест меняет размеры реальной 3D-модели.</p>
+<div class="actions"><button class="btn alt" id="save">Сохранить идею</button><button class="btn alt" id="exportJson">Экспорт JSON</button></div></aside></section>
 <div class="bottom"><div>Выбрано: <span class="selected" id="selected">Metal Block</span></div><div id="saved" style="color:var(--muted)">локальный режим</div></div>
-<footer class="foot">AI Product Studio · интерактивный 3D-концептор простых металлических форм · 097 658 89 00</footer>
+<footer class="foot">AI Product Studio · WebGL 3D-концептор простых металлических форм · 097 658 89 00</footer>
 </main></div>
-<script>
-const S={shape:'box',rx:18,ry:32,scale:1,size:80,drag:false,x:0,y:0,mode:'view',width:1,height:1,depth:1,thickness:1,segments:0};
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js';
+
+const S={shape:'box',rx:18,ry:32,scale:1,size:80,mode:'view',width:1,height:1,depth:1,thickness:1,segments:0};
 const names={box:'Metal Block',tube:'Metal Tube',frame:'Metal Frame',plate:'Metal Plate',beam:'Metal Beam'};
-const group=document.getElementById('modelGroup'),viewer=document.getElementById('viewer');
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const modeButtons=document.querySelectorAll('.mode');
-function buildStep(dx,dy){S.width=clamp(S.width+dx*.012,.55,1.7);S.height=clamp(S.height-dy*.012,.55,1.7);S.depth=clamp(S.depth+(Math.abs(dx)+Math.abs(dy))*.0015,.65,1.65);S.thickness=clamp(S.thickness+((dx>0?1:-1)*.015),.55,1.55);S.segments=clamp(Math.round(S.segments+(Math.abs(dx)>70?1:0)),0,8);}
-function setMode(m){S.mode=m;modeButtons.forEach(b=>b.classList.toggle('active',b.dataset.mode===m));document.getElementById('hint').textContent=m==='build'?'Режим «Конструктор»: свайп ↔ меняет ширину · ↑↓ меняет высоту · скролл меняет толщину':'Режим «Вид»: свайп вращает · вертикальный жест меняет наклон · колесо меняет масштаб';document.getElementById('gesture').textContent=m==='build'?'жест = геометрия':'двигай пальцем / скролль';}
-const face=(p,c='face')=>'<polygon class="'+c+'" points="'+p+'"/>';
-function drawBox(){const w=155*S.size/80,h=105*S.size/80,d=95*S.size/80;return face((-w/2)+','+(-h/2)+' '+(w/2)+','+(-h/2)+' '+(w/2+d*.35)+','+(-h/2-d*.35)+' '+(-w/2+d*.35)+','+(-h/2-d*.35))+face((-w/2)+','+(-h/2)+' '+(-w/2+d*.35)+','+(-h/2-d*.35)+' '+(-w/2+d*.35)+','+(h/2-d*.35)+' '+(-w/2)+','+(h/2))+face((-w/2)+','+(h/2)+' '+(w/2)+','+(h/2)+' '+(w/2+d*.35)+','+(h/2-d*.35)+' '+(-w/2+d*.35)+','+(h/2-d*.35))+'<path class="edge" d="M '+(-w/2)+' '+(-h/2)+' L '+(w/2)+' '+(-h/2)+' L '+(w/2+d*.35)+' '+(-h/2-d*.35)+' L '+(-w/2+d*.35)+' '+(-h/2-d*.35)+' Z"/>'}
-function drawTube(){const r=65*S.size/80,hh=150*S.size/80;return '<ellipse class="face" cx="0" cy="'+(-hh/2)+'" rx="'+r+'" ry="'+(r*.32)+'"/><path class="face" d="M '+(-r)+' '+(-hh/2)+' L '+(-r)+' '+(hh/2)+' C '+(-r*.5)+' '+(hh/2+25)+' '+(r*.5)+' '+(hh/2+25)+' '+r+' '+(hh/2)+' L '+r+' '+(-hh/2)+' C '+(r*.5)+' '+(-hh/2+25)+' '+(-r*.5)+' '+(-hh/2+25)+' '+(-r)+' '+(-hh/2)+' Z"/><ellipse class="face" cx="0" cy="'+(hh/2)+'" rx="'+r+'" ry="'+(r*.32)+'"/><ellipse class="wire" cx="0" cy="'+(-hh/2)+'" rx="'+(r*.62)+'" ry="'+(r*.2)+'"/>'}
-function drawPlate(){const w=220*S.size/80,h=145*S.size/80,d=35*S.size/80;return face((-w/2)+','+(-h/2)+' '+(w/2)+','+(-h/2)+' '+(w/2+d)+','+(-h/2-d*.45)+' '+(-w/2+d)+','+(-h/2-d*.45))+face((-w/2+d)+','+(-h/2-d*.45)+' '+(w/2+d)+','+(-h/2-d*.45)+' '+(w/2+d)+','+(h/2-d*.45)+' '+(-w/2+d)+','+(h/2-d*.45))+face((-w/2)+','+(-h/2)+' '+(-w/2+d)+','+(-h/2-d*.45)+' '+(-w/2+d)+','+(h/2-d*.45)+' '+(-w/2)+','+(h/2))}
-function drawFrame(){const a=150*S.size/80,b=105*S.size/80,t=18;return '<g fill="none" stroke="url(#metal)" stroke-width="'+t+'"><rect x="'+(-a/2)+'" y="'+(-b/2)+'" width="'+a+'" height="'+b+'" rx="5"/><path d="M '+(-a/2)+' '+(-b/2)+' L '+(-a/2+35)+' '+(-b/2-35)+' L '+(a/2+35)+' '+(-b/2-35)+' L '+(a/2)+' '+(-b/2)+'"/></g><rect class="wire" x="'+(-a/2+t)+'" y="'+(-b/2+t)+'" width="'+(a-2*t)+'" height="'+(b-2*t)+'"/>'}
-function drawBeam(){const w=210*S.size/80,h=80*S.size/80,d=45*S.size/80;return face((-w/2)+','+(-h/2)+' '+(w/2)+','+(-h/2)+' '+(w/2+d)+','+(-h/2-d*.3)+' '+(-w/2+d)+','+(-h/2-d*.3))+face((-w/2+d)+','+(-h/2-d*.3)+' '+(w/2+d)+','+(-h/2-d*.3)+' '+(w/2+d)+','+(h/2-d*.3)+' '+(-w/2+d)+','+(h/2-d*.3))+face((-w/2)+','+(-h/2)+' '+(-w/2+d)+','+(-h/2-d*.3)+' '+(-w/2+d)+','+(h/2-d*.3)+' '+(-w/2)+','+(h/2))}
-function render(){let c=S.shape==='box'?drawBox():S.shape==='tube'?drawTube():S.shape==='frame'?drawFrame():S.shape==='plate'?drawPlate():drawBeam();group.innerHTML=c;group.setAttribute('transform','rotate('+S.ry+' 0 0) scale('+(S.scale*(S.mode==='build'?S.width:1))+','+(S.scale*(S.mode==='build'?S.height:1))+') skewX('+(clamp(S.rx-18,-24,24)+(S.mode==='build'?(S.depth-1)*12:0))+')');document.getElementById('rx').textContent=Math.round(S.rx)+'°';document.getElementById('ry').textContent=Math.round(S.ry)+'°';document.getElementById('scaleRead').textContent=S.scale.toFixed(2)+'×';document.getElementById('sizeValue').textContent=S.size+'%';document.getElementById('modelName').textContent=names[S.shape].toUpperCase();document.getElementById('selected').textContent=names[S.shape];document.getElementById('resultText').textContent='Вариант '+S.shape+' · X '+Math.round(S.rx)+'° · Y '+Math.round(S.ry)+'° · масштаб '+S.scale.toFixed(2)+'×'}
-function act(a){if(S.mode==='build'){if(a==='left')buildStep(-55,0);if(a==='right')buildStep(55,0);if(a==='up')buildStep(0,-55);if(a==='down')buildStep(0,55);render();return}if(a==='left')S.ry-=12;if(a==='right')S.ry+=12;if(a==='up')S.rx=clamp(S.rx-8,-50,70);if(a==='down')S.rx=clamp(S.rx+8,-50,70);render()}
-document.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{document.querySelectorAll('.choice').forEach(x=>x.classList.remove('active'));b.classList.add('active');S.shape=b.dataset.shape;render()});
+const viewer=document.getElementById('viewer'),canvas=document.getElementById('canvas');
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0b1118);
+const camera=new THREE.PerspectiveCamera(42,1,.1,100); camera.position.set(3.4,2.5,4.5);
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true}); renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.shadowMap.enabled=true;
+const controls=new OrbitControls(camera,canvas); controls.enableDamping=true; controls.dampingFactor=.08; controls.enablePan=false; controls.minDistance=2.2; controls.maxDistance=8; controls.target.set(0,0,0);
+const ambient=new THREE.HemisphereLight(0xdceeff,0x18202a,2.2); scene.add(ambient);
+const key=new THREE.DirectionalLight(0xffffff,3.2); key.position.set(4,6,5); key.castShadow=true; scene.add(key);
+const rim=new THREE.DirectionalLight(0x45d8ff,2); rim.position.set(-4,2,-5); scene.add(rim);
+const grid=new THREE.GridHelper(8,16,0x294050,0x17242f); grid.position.y=-1.15; scene.add(grid);
+const root=new THREE.Group(); scene.add(root);
+let mesh=null;
+
+function material(){return new THREE.MeshStandardMaterial({color:0x9aa8b4,metalness:.88,roughness:.24});}
+function makeBox(){return new THREE.BoxGeometry(2,1.45,1.25,1,1,1)}
+function makeTube(){return new THREE.CylinderGeometry(.72,.72,2.1,Math.max(12,12+S.segments*4),1,false)}
+function makePlate(){return new THREE.BoxGeometry(2.5,.22,1.65)}
+function makeBeam(){const g=new THREE.BoxGeometry(2.5,1.05,.55); return g}
+function makeFrame(){
+  const group=new THREE.Group(), m=material(), w=2.4,h=1.55,d=1.25,t=.16;
+  const parts=[
+    [w,t,t,0,h/2, d/2],[w,t,t,0,-h/2,d/2],[w,t,t,0,h/2,-d/2],[w,t,t,0,-h/2,-d/2],
+    [t,h,t,-w/2,0,d/2],[t,h,t,w/2,0,d/2],[t,h,t,-w/2,0,-d/2],[t,h,t,w/2,0,-d/2],
+    [t,t,d,-w/2,h/2,0],[t,t,d,w/2,h/2,0],[t,t,d,-w/2,-h/2,0],[t,t,d,w/2,-h/2,0]
+  ];
+  for(const [x,y,z,px,py,pz] of parts){const b=new THREE.Mesh(new THREE.BoxGeometry(x,y,z),m);b.position.set(px,py,pz);b.castShadow=true;b.receiveShadow=true;group.add(b)}
+  return group;
+}
+function dispose(o){o.traverse(x=>{if(x.geometry)x.geometry.dispose();if(x.material){if(Array.isArray(x.material))x.material.forEach(m=>m.dispose());else x.material.dispose()}})}
+function build(){
+  if(mesh){dispose(mesh);root.remove(mesh)}
+  mesh=S.shape==='box'?new THREE.Mesh(makeBox(),material()):
+       S.shape==='tube'?new THREE.Mesh(makeTube(),material()):
+       S.shape==='plate'?new THREE.Mesh(makePlate(),material()):
+       S.shape==='beam'?new THREE.Mesh(makeBeam(),material()):makeFrame();
+  mesh.castShadow=true;mesh.receiveShadow=true;root.add(mesh);
+  applyGeometry(); updateText();
+}
+function applyGeometry(){
+  const g=S.shape==='frame'?root:mesh;
+  g.scale.set(S.scale*S.width,S.scale*S.height,S.scale*S.depth);
+  if(S.shape==='tube' && mesh.geometry && mesh.geometry.parameters) mesh.scale.z*=S.thickness;
+  else if(S.shape!=='frame') mesh.scale.set(mesh.scale.x,mesh.scale.y,mesh.scale.z*S.thickness);
+  root.rotation.x=THREE.MathUtils.degToRad(S.rx);
+  root.rotation.y=THREE.MathUtils.degToRad(S.ry);
+  updateText();
+}
+function updateText(){
+  document.getElementById('rx').textContent=Math.round(S.rx)+'°';
+  document.getElementById('ry').textContent=Math.round(S.ry)+'°';
+  document.getElementById('scaleRead').textContent=S.scale.toFixed(2)+'×';
+  document.getElementById('sizeValue').textContent=S.size+'%';
+  document.getElementById('widthRead').textContent=S.width.toFixed(2)+'×';
+  document.getElementById('heightRead').textContent=S.height.toFixed(2)+'×';
+  document.getElementById('depthRead').textContent=S.depth.toFixed(2)+'×';
+  document.getElementById('thicknessRead').textContent=S.thickness.toFixed(2)+'×';
+  document.getElementById('modelName').textContent=names[S.shape].toUpperCase();
+  document.getElementById('selected').textContent=names[S.shape];
+  document.getElementById('resultText').textContent='Реальный Mesh · '+names[S.shape]+' · W '+S.width.toFixed(2)+' · H '+S.height.toFixed(2)+' · D '+S.depth.toFixed(2);
+}
+function buildStep(dx,dy){
+  S.width=THREE.MathUtils.clamp(S.width+dx*.012,.55,1.8);
+  S.height=THREE.MathUtils.clamp(S.height-dy*.012,.55,1.8);
+  S.depth=THREE.MathUtils.clamp(S.depth+Math.abs(dx+dy)*.0008,.55,1.8);
+  S.thickness=THREE.MathUtils.clamp(S.thickness+(dx>0?.012:-.012),.55,1.55);
+  S.segments=THREE.MathUtils.clamp(Math.round(S.segments+(Math.abs(dx)>70?1:0)),0,8);
+  applyGeometry();
+}
+function act(a){
+  if(S.mode==='build'){if(a==='left')buildStep(-55,0);if(a==='right')buildStep(55,0);if(a==='up')buildStep(0,-55);if(a==='down')buildStep(0,55);return}
+  if(a==='left')S.ry-=12;if(a==='right')S.ry+=12;if(a==='up')S.rx=THREE.MathUtils.clamp(S.rx-8,-65,75);if(a==='down')S.rx=THREE.MathUtils.clamp(S.rx+8,-65,75);applyGeometry();
+}
+function setMode(m){
+  S.mode=m;
+  document.querySelectorAll('.mode').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));
+  controls.enabled=m==='view';
+  document.getElementById('hint').textContent=m==='build'?'Конструктор: свайп ↔ ширина · ↑↓ высота · скролл толщина/глубина':'Вид: свайп вращает · pinch/колесо меняет масштаб';
+  document.getElementById('gesture').textContent=m==='build'?'жест = геометрия':'двигай пальцем / скролль';
+}
+function resize(){const w=viewer.clientWidth,h=viewer.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
+window.addEventListener('resize',resize);
+document.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{document.querySelectorAll('.choice').forEach(x=>x.classList.remove('active'));b.classList.add('active');S.shape=b.dataset.shape;build()});
 document.querySelectorAll('.control[data-action]').forEach(b=>b.onclick=()=>act(b.dataset.action));
-modeButtons.forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
-document.getElementById('size').oninput=e=>{S.size=+e.target.value;S.scale=S.size/80;render()};
-document.getElementById('reset').onclick=()=>{S.rx=18;S.ry=32;S.size=80;S.scale=1;S.width=1;S.height=1;S.depth=1;S.thickness=1;S.segments=0;setMode('view');document.getElementById('size').value=80;render()};
-document.getElementById('generate').onclick=()=>{S.ry=Math.round(Math.random()*90-45);S.rx=Math.round(Math.random()*55-15);S.size=Math.round(55+Math.random()*65);S.scale=S.size/80;S.width=.7+Math.random()*.6;S.height=.7+Math.random()*.6;S.depth=.7+Math.random()*.6;S.thickness=.7+Math.random()*.6;S.segments=Math.floor(Math.random()*5);document.getElementById('size').value=S.size;render();document.getElementById('gesture').textContent='новая геометрия создана'};
-document.getElementById('save').onclick=()=>{localStorage.setItem('aps_3d_idea',JSON.stringify({...S,savedAt:new Date().toISOString()}));document.getElementById('saved').textContent='идея сохранена локально'};
-document.getElementById('exportJson').onclick=()=>{const blob=new Blob([JSON.stringify({shape:S.shape,geometry:{width:S.width,height:S.height,depth:S.depth,thickness:S.thickness,segments:S.segments},view:{rx:S.rx,ry:S.ry,scale:S.scale}},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ai-product-geometry.json';a.click()};
-document.getElementById('export').onclick=()=>{const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="-260 -210 520 420"><defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5f8fb"/><stop offset="1" stop-color="#596775"/></linearGradient></defs>'+group.innerHTML+'</svg>';const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));a.download=names[S.shape].toLowerCase().replaceAll(' ','-')+'.svg';a.click()};
-viewer.addEventListener('pointerdown',e=>{S.drag=true;S.x=e.clientX;S.y=e.clientY;viewer.setPointerCapture(e.pointerId)});
-viewer.addEventListener('pointermove',e=>{if(!S.drag)return;const dx=e.clientX-S.x,dy=e.clientY-S.y;if(Math.abs(dx)>7){act(dx>0?'right':'left');S.x=e.clientX}if(Math.abs(dy)>7){act(dy>0?'down':'up');S.y=e.clientY}});
-viewer.addEventListener('pointerup',()=>S.drag=false);
-viewer.addEventListener('wheel',e=>{e.preventDefault();if(S.mode==='build'){S.thickness=clamp(S.thickness+(e.deltaY<0?.08:-.08),.55,1.55);S.depth=clamp(S.depth+(e.deltaX<0?.04:-.04),.65,1.65);render();}else if(Math.abs(e.deltaX)>Math.abs(e.deltaY))act(e.deltaX>0?'right':'left');else{S.size=clamp(S.size+(e.deltaY<0?5:-5),40,130);S.scale=S.size/80;document.getElementById('size').value=S.size;render()}},{passive:false});
-document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')act('left');if(e.key==='ArrowRight')act('right');if(e.key==='ArrowUp')act('up');if(e.key==='ArrowDown')act('down');if(e.key==='b')setMode('build');if(e.key==='v')setMode('view')});
-render();
-</script></body></html>
+document.querySelectorAll('.mode').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+document.getElementById('size').oninput=e=>{S.size=+e.target.value;S.scale=S.size/80;applyGeometry()};
+document.getElementById('reset').onclick=()=>{Object.assign(S,{rx:18,ry:32,scale:1,size:80,width:1,height:1,depth:1,thickness:1,segments:0});document.getElementById('size').value=80;setMode('view');applyGeometry();camera.position.set(3.4,2.5,4.5);controls.target.set(0,0,0);controls.update()};
+document.getElementById('generate').onclick=()=>{S.rx=Math.round(Math.random()*55-15);S.ry=Math.round(Math.random()*90-45);S.size=Math.round(55+Math.random()*70);S.scale=S.size/80;S.width=.7+Math.random()*.6;S.height=.7+Math.random()*.6;S.depth=.7+Math.random()*.6;S.thickness=.7+Math.random()*.6;S.segments=Math.floor(Math.random()*5);document.getElementById('size').value=S.size;applyGeometry();document.getElementById('gesture').textContent='новая 3D-геометрия создана'};
+document.getElementById('save').onclick=()=>{localStorage.setItem('aps_3d_idea',JSON.stringify({...S,savedAt:new Date().toISOString()}));document.getElementById('saved').textContent='3D-идея сохранена локально'};
+document.getElementById('exportJson').onclick=()=>{const data={version:'4.2',engine:'three.js/WebGL',shape:S.shape,geometry:{width:S.width,height:S.height,depth:S.depth,thickness:S.thickness,segments:S.segments},view:{rx:S.rx,ry:S.ry,scale:S.scale}};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='ai-product-3d-geometry.json';a.click()};
+let lastX=0,lastY=0,drag=false;
+viewer.addEventListener('pointerdown',e=>{if(S.mode!=='build')return;drag=true;lastX=e.clientX;lastY=e.clientY;viewer.classList.add('dragging');viewer.setPointerCapture(e.pointerId)});
+viewer.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;if(Math.abs(dx)>5||Math.abs(dy)>5){buildStep(dx,dy);lastX=e.clientX;lastY=e.clientY}});
+viewer.addEventListener('pointerup',()=>{drag=false;viewer.classList.remove('dragging')});
+viewer.addEventListener('pointercancel',()=>{drag=false;viewer.classList.remove('dragging')});
+viewer.addEventListener('wheel',e=>{e.preventDefault();if(S.mode==='build'){S.thickness=THREE.MathUtils.clamp(S.thickness+(e.deltaY<0?.07:-.07),.55,1.55);S.depth=THREE.MathUtils.clamp(S.depth+(e.deltaX<0?.04:-.04),.55,1.8);applyGeometry()}else{const next=THREE.MathUtils.clamp(S.scale+(e.deltaY<0?.06:-.06),.45,1.8);S.scale=next;S.size=Math.round(next*80);document.getElementById('size').value=THREE.MathUtils.clamp(S.size,40,140);applyGeometry()}},{passive:false});
+let touchDistance=null;
+viewer.addEventListener('touchmove',e=>{if(S.mode!=='view'||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);if(touchDistance!==null){S.scale=THREE.MathUtils.clamp(S.scale+(d-touchDistance)*.003,.45,1.8);S.size=Math.round(S.scale*80);document.getElementById('size').value=THREE.MathUtils.clamp(S.size,40,140);applyGeometry()}touchDistance=d},{passive:false});
+viewer.addEventListener('touchend',()=>touchDistance=null);
+document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')act('left');if(e.key==='ArrowRight')act('right');if(e.key==='ArrowUp')act('up');if(e.key==='ArrowDown')act('down');if(e.key.toLowerCase()==='b')setMode('build');if(e.key.toLowerCase()==='v')setMode('view')});
+build();resize();document.getElementById('loading').style.display='none';
+function loop(){requestAnimationFrame(loop);controls.update();renderer.render(scene,camera)} loop();
+</script>
+</body></html>
