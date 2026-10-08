@@ -313,6 +313,41 @@
       letter-spacing: -0.05em;
     }
 
+    .voice-preset {
+      display: grid;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .voice-preset label {
+      color: var(--soft);
+      font-size: 0.78rem;
+      font-weight: 650;
+    }
+
+    .voice-select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      color: var(--text);
+      background: rgba(7, 15, 22, 0.88);
+      font: inherit;
+    }
+
+    .voice-select:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+    }
+
+    .voice-preset-description {
+      min-height: 1.5em;
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.5;
+    }
+
     .mic-indicator {
       display: inline-flex;
       align-items: center;
@@ -386,6 +421,47 @@
     .privacy-note strong {
       color: var(--soft);
       font-weight: 600;
+    }
+
+    .recording-panel {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .recording-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .record-button.is-recording {
+      border-color: rgba(255, 108, 125, 0.5);
+      background: rgba(138, 33, 52, 0.3);
+      color: #ffdbe0;
+    }
+
+    .record-button:disabled,
+    .recording-clear:disabled {
+      cursor: not-allowed;
+      opacity: 0.48;
+    }
+
+    .recording-status {
+      min-height: 1.5em;
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    .voice-playback {
+      display: block;
+      width: 100%;
+      height: 40px;
+      accent-color: var(--accent);
     }
 
     .section {
@@ -693,6 +769,10 @@
         width: 100%;
       }
 
+      .recording-actions .btn {
+        flex-basis: 100%;
+      }
+
       .section-head {
         align-items: flex-start;
         flex-direction: column;
@@ -766,7 +846,7 @@
           <div class="metrics" aria-label="Приватность визуализатора">
             <div class="metric">
               <strong>0</strong>
-              <span>записей</span>
+              <span>отправок на сервер</span>
             </div>
             <div class="metric">
               <strong>100%</strong>
@@ -784,9 +864,20 @@
             <div class="voice-card-head">
               <div>
                 <div class="voice-kicker">Интерактивное демо</div>
-                <h2 id="voice-title">Ваш голос — в движении</h2>
+                <h2 id="voice-title">Ваш голос. Роботизированный тембр.</h2>
               </div>
               <span class="mic-indicator" id="mic-indicator">Микрофон выключен</span>
+            </div>
+
+            <div class="voice-preset">
+              <label for="voice-preset">Выберите голосовой эффект</label>
+              <select class="voice-select" id="voice-preset">
+                <option value="classic">Классический робот</option>
+                <option value="android">Голос андроида</option>
+                <option value="deep">Глубокий робот</option>
+                <option value="radio">Цифровой радиоголос</option>
+              </select>
+              <p class="voice-preset-description" id="voice-preset-description" aria-live="polite">Ровный металлический оттенок и мягкая модуляция.</p>
             </div>
 
             <div class="voice-canvas-wrap">
@@ -797,7 +888,15 @@
               <p class="voice-status" id="voice-status" role="status" aria-live="polite">Нажмите кнопку, чтобы разрешить доступ к микрофону и увидеть визуализацию звука.</p>
               <button class="btn primary mic-toggle" id="mic-toggle" type="button" aria-pressed="false">Включить микрофон</button>
             </div>
-            <p class="privacy-note"><strong>Приватность:</strong> звук не записывается и не отправляется на сервер. Анализ выполняется прямо в браузере. Доступ можно отключить в любой момент.</p>
+            <div class="recording-panel" aria-label="Запись голоса">
+              <div class="recording-actions">
+                <button class="btn record-button" id="record-toggle" type="button" disabled aria-pressed="false">Записать голос</button>
+                <button class="btn recording-clear" id="recording-clear" type="button" disabled>Удалить запись</button>
+              </div>
+              <p class="recording-status" id="recording-status" role="status" aria-live="polite">Включите микрофон, чтобы записать голос с роботизированным тембром.</p>
+              <audio class="voice-playback" id="voice-playback" controls preload="metadata" hidden aria-label="Прослушать запись роботизированного голоса"></audio>
+            </div>
+            <p class="privacy-note"><strong>Приватность:</strong> голос обрабатывается и записывается только в браузере. Запись не отправляется на сервер и удаляется при перезагрузке страницы. Выключите микрофон, чтобы завершить работу.</p>
           </section>
         </div>
       </div>
@@ -904,13 +1003,253 @@
     const micToggle = document.querySelector("#mic-toggle");
     const micIndicator = document.querySelector("#mic-indicator");
     const voiceStatus = document.querySelector("#voice-status");
+    const recordToggle = document.querySelector("#record-toggle");
+    const recordingClear = document.querySelector("#recording-clear");
+    const recordingStatus = document.querySelector("#recording-status");
+    const voicePlayback = document.querySelector("#voice-playback");
+    const voicePreset = document.querySelector("#voice-preset");
+    const voicePresetDescription = document.querySelector("#voice-preset-description");
     const voiceCard = document.querySelector("#voice-lab");
     const canvas = document.querySelector("#voice-visualizer");
     const canvasContext = canvas.getContext("2d");
     let microphoneStream = null;
     let audioContext = null;
     let analyser = null;
+    let recordingDestination = null;
     let animationFrame = null;
+    let mediaRecorder = null;
+    let recordingChunks = [];
+    let recordingUrl = null;
+    let recordingVoiceName = "";
+    let stopMicrophoneAfterRecording = false;
+    let stopMicrophoneMessage = "Микрофон выключен.";
+
+    const voicePresets = {
+      classic: {
+        description: "Ровный металлический оттенок и мягкая модуляция.",
+        highpass: 150,
+        lowpass: 3400,
+        carrier: 34,
+        modulationDepth: 0.34,
+        modulationOffset: 0.66,
+        distortion: 2.8
+      },
+      android: {
+        description: "Яркий синтетический тембр с заметной вибрацией.",
+        highpass: 210,
+        lowpass: 4200,
+        carrier: 52,
+        modulationDepth: 0.58,
+        modulationOffset: 0.42,
+        distortion: 1.9
+      },
+      deep: {
+        description: "Низкий, приглушённый оттенок с тяжёлой модуляцией.",
+        highpass: 80,
+        lowpass: 1550,
+        carrier: 24,
+        modulationDepth: 0.24,
+        modulationOffset: 0.76,
+        distortion: 3.4
+      },
+      radio: {
+        description: "Узкий радиодиапазон и резкая цифровая модуляция.",
+        highpass: 420,
+        lowpass: 2350,
+        carrier: 78,
+        modulationDepth: 0.78,
+        modulationOffset: 0.22,
+        distortion: 4.6
+      }
+    };
+    let activeVoiceEffect = null;
+
+    function applyVoicePreset() {
+      const preset = voicePresets[voicePreset.value];
+      if (!preset) return;
+
+      voicePresetDescription.textContent = preset.description;
+      if (!activeVoiceEffect || !audioContext) return;
+
+      const transitionTime = audioContext.currentTime + 0.04;
+      const smoothing = 0.08;
+      activeVoiceEffect.highpass.frequency.setTargetAtTime(preset.highpass, transitionTime, smoothing);
+      activeVoiceEffect.lowpass.frequency.setTargetAtTime(preset.lowpass, transitionTime, smoothing);
+      activeVoiceEffect.carrier.frequency.setTargetAtTime(preset.carrier, transitionTime, smoothing);
+      activeVoiceEffect.modulationDepth.gain.setTargetAtTime(preset.modulationDepth, transitionTime, smoothing);
+      activeVoiceEffect.modulationOffset.offset.setTargetAtTime(preset.modulationOffset, transitionTime, smoothing);
+
+      const curve = new Float32Array(2048);
+      for (let index = 0; index < curve.length; index += 1) {
+        const input = (index * 2) / (curve.length - 1) - 1;
+        curve[index] = Math.tanh(input * preset.distortion);
+      }
+      activeVoiceEffect.shaper.curve = curve;
+    }
+
+    function createRobotVoiceEffect(source) {
+      const preset = voicePresets[voicePreset.value];
+      const highpass = audioContext.createBiquadFilter();
+      highpass.type = "highpass";
+      highpass.frequency.value = preset.highpass;
+
+      const lowpass = audioContext.createBiquadFilter();
+      lowpass.type = "lowpass";
+      lowpass.frequency.value = preset.lowpass;
+
+      const shaper = audioContext.createWaveShaper();
+      const curve = new Float32Array(2048);
+      for (let index = 0; index < curve.length; index += 1) {
+        const input = (index * 2) / (curve.length - 1) - 1;
+        curve[index] = Math.tanh(input * preset.distortion);
+      }
+      shaper.curve = curve;
+      shaper.oversample = "4x";
+
+      const ringModulator = audioContext.createGain();
+      ringModulator.gain.setValueAtTime(0, audioContext.currentTime);
+
+      const carrier = audioContext.createOscillator();
+      carrier.type = "sine";
+      carrier.frequency.value = preset.carrier;
+
+      const modulationDepth = audioContext.createGain();
+      modulationDepth.gain.value = preset.modulationDepth;
+      const modulationOffset = audioContext.createConstantSource();
+      modulationOffset.offset.value = preset.modulationOffset;
+
+      carrier.connect(modulationDepth);
+      modulationDepth.connect(ringModulator.gain);
+      modulationOffset.connect(ringModulator.gain);
+      carrier.start();
+      modulationOffset.start();
+
+      source.connect(highpass);
+      highpass.connect(lowpass);
+      lowpass.connect(shaper);
+      shaper.connect(ringModulator);
+      return { output: ringModulator, highpass, lowpass, shaper, carrier, modulationDepth, modulationOffset };
+    }
+
+    function clearSavedRecording() {
+      voicePlayback.pause();
+      voicePlayback.removeAttribute("src");
+      voicePlayback.load();
+      voicePlayback.hidden = true;
+      if (recordingUrl) {
+        URL.revokeObjectURL(recordingUrl);
+        recordingUrl = null;
+      }
+      recordingClear.disabled = true;
+      recordingStatus.textContent = "Запись удалена.";
+    }
+
+    function releaseMicrophone(message = "Микрофон выключен.") {
+      if (animationFrame !== null) {
+        window.cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+      }
+      if (microphoneStream) {
+        microphoneStream.getTracks().forEach((track) => track.stop());
+        microphoneStream = null;
+      }
+      if (audioContext && audioContext.state !== "closed") {
+        audioContext.close().catch((error) => {
+          console.error("Не удалось закрыть аудиоконтекст:", error);
+        });
+      }
+      audioContext = null;
+      analyser = null;
+      recordingDestination = null;
+      activeVoiceEffect = null;
+      voiceCard.classList.remove("is-live");
+      micIndicator.textContent = "Микрофон выключен";
+      micToggle.textContent = "Включить микрофон";
+      micToggle.setAttribute("aria-pressed", "false");
+      recordToggle.disabled = true;
+      voicePreset.disabled = false;
+      voiceStatus.textContent = message;
+      drawVisualizer();
+    }
+
+    function finishRecording() {
+      const recordingType = mediaRecorder?.mimeType || "audio/webm";
+      const recording = new Blob(recordingChunks, { type: recordingType });
+      recordingChunks = [];
+      mediaRecorder = null;
+      recordToggle.disabled = !microphoneStream;
+      voicePreset.disabled = false;
+      recordToggle.classList.remove("is-recording");
+      recordToggle.textContent = "Записать ещё раз";
+      recordToggle.setAttribute("aria-pressed", "false");
+
+      if (recording.size > 0) {
+        if (recordingUrl) URL.revokeObjectURL(recordingUrl);
+        recordingUrl = URL.createObjectURL(recording);
+        voicePlayback.src = recordingUrl;
+        voicePlayback.hidden = false;
+        recordingClear.disabled = false;
+        recordingStatus.textContent = `Готово — запись «${recordingVoiceName}». Нажмите воспроизведение, чтобы прослушать.`;
+      } else {
+        recordingStatus.textContent = "Не удалось сохранить запись. Попробуйте ещё раз.";
+      }
+
+      if (stopMicrophoneAfterRecording) {
+        stopMicrophoneAfterRecording = false;
+        releaseMicrophone(stopMicrophoneMessage);
+      }
+    }
+
+    function startRecording() {
+      if (!microphoneStream || !recordingDestination) {
+        recordingStatus.textContent = "Сначала включите микрофон.";
+        return;
+      }
+      if (!window.MediaRecorder) {
+        recordingStatus.textContent = "Запись не поддерживается этим браузером. Попробуйте актуальную версию Chrome, Edge или Firefox.";
+        return;
+      }
+
+      const supportedType = [
+        "audio/webm;codecs=opus",
+        "audio/ogg;codecs=opus",
+        "audio/mp4"
+      ].find((type) => MediaRecorder.isTypeSupported(type));
+
+      try {
+        mediaRecorder = supportedType
+          ? new MediaRecorder(recordingDestination.stream, { mimeType: supportedType })
+          : new MediaRecorder(recordingDestination.stream);
+        recordingChunks = [];
+        recordingVoiceName = voicePreset.selectedOptions[0].textContent;
+        mediaRecorder.addEventListener("dataavailable", (event) => {
+          if (event.data.size > 0) recordingChunks.push(event.data);
+        });
+        mediaRecorder.addEventListener("stop", finishRecording, { once: true });
+        mediaRecorder.addEventListener("error", (event) => {
+          console.error("Ошибка записи голоса:", event.error);
+          recordingStatus.textContent = "Во время записи произошла ошибка. Попробуйте ещё раз.";
+        }, { once: true });
+        mediaRecorder.start();
+        recordToggle.classList.add("is-recording");
+        voicePreset.disabled = true;
+        recordToggle.textContent = "Остановить запись";
+        recordToggle.setAttribute("aria-pressed", "true");
+        recordingClear.disabled = true;
+        recordingStatus.textContent = `Идёт запись «${recordingVoiceName}». Говорите, затем остановите запись для прослушивания.`;
+      } catch (error) {
+        console.error("Не удалось начать запись голоса:", error);
+        recordingStatus.textContent = "Не удалось начать запись. Проверьте поддержку аудиоформата в браузере.";
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        recordToggle.disabled = true;
+        recordingStatus.textContent = "Сохраняем запись…";
+        mediaRecorder.stop();
+      }
+    }
 
     function drawVisualizer() {
       const bounds = canvas.getBoundingClientRect();
@@ -978,28 +1317,15 @@
       if (analyser) animationFrame = window.requestAnimationFrame(animateVisualizer);
     }
 
-    function stopMicrophone(message = "Микрофон выключен. Звук не записывался.") {
-      if (animationFrame !== null) {
-        window.cancelAnimationFrame(animationFrame);
-        animationFrame = null;
+    function stopMicrophone(message = "Микрофон выключен.") {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        stopMicrophoneAfterRecording = true;
+        stopMicrophoneMessage = message;
+        voiceStatus.textContent = "Завершаем запись и выключаем микрофон…";
+        stopRecording();
+        return;
       }
-      if (microphoneStream) {
-        microphoneStream.getTracks().forEach((track) => track.stop());
-        microphoneStream = null;
-      }
-      if (audioContext && audioContext.state !== "closed") {
-        audioContext.close().catch((error) => {
-          console.error("Не удалось закрыть аудиоконтекст:", error);
-        });
-      }
-      audioContext = null;
-      analyser = null;
-      voiceCard.classList.remove("is-live");
-      micIndicator.textContent = "Микрофон выключен";
-      micToggle.textContent = "Включить микрофон";
-      micToggle.setAttribute("aria-pressed", "false");
-      voiceStatus.textContent = message;
-      drawVisualizer();
+      releaseMicrophone(message);
     }
 
     async function startMicrophone() {
@@ -1025,17 +1351,22 @@
         });
         microphoneStream = stream;
         const source = audioContext.createMediaStreamSource(stream);
+        activeVoiceEffect = createRobotVoiceEffect(source);
         analyser = audioContext.createAnalyser();
         analyser.fftSize = 1024;
         analyser.smoothingTimeConstant = 0.82;
-        source.connect(analyser);
+        recordingDestination = audioContext.createMediaStreamDestination();
+        activeVoiceEffect.output.connect(analyser);
+        analyser.connect(recordingDestination);
         await audioContext.resume();
 
         voiceCard.classList.add("is-live");
         micIndicator.textContent = "Микрофон активен";
         micToggle.textContent = "Выключить микрофон";
         micToggle.setAttribute("aria-pressed", "true");
-        voiceStatus.textContent = "Говорите или издайте звук — визуализация реагирует в реальном времени.";
+        voiceStatus.textContent = "Говорите: голос уже проходит через роботизированный эффект.";
+        recordToggle.disabled = false;
+        recordingStatus.textContent = "Нажмите «Записать голос», чтобы сохранить обработанный голос и прослушать результат.";
         animateVisualizer();
 
         stream.getAudioTracks().forEach((track) => {
@@ -1057,6 +1388,10 @@
         }
         audioContext = null;
         analyser = null;
+        recordingDestination = null;
+        activeVoiceEffect = null;
+        recordToggle.disabled = true;
+        voicePreset.disabled = false;
 
         if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
           voiceStatus.textContent = "Нет доступа к микрофону. Разрешите его в настройках сайта и попробуйте снова.";
@@ -1081,7 +1416,29 @@
       }
     });
 
+    recordToggle.addEventListener("click", () => {
+      if (mediaRecorder?.state === "recording") {
+        stopRecording();
+      } else {
+        startRecording();
+      }
+    });
+
+    applyVoicePreset();
+    recordingClear.addEventListener("click", clearSavedRecording);
+    voicePreset.addEventListener("change", () => {
+      applyVoicePreset();
+      if (microphoneStream) {
+        voiceStatus.textContent = `Выбран эффект «${voicePreset.selectedOptions[0].textContent}». Этот тембр будет использован в записи.`;
+      }
+    });
+
     window.addEventListener("resize", drawVisualizer);
+    window.addEventListener("pagehide", () => {
+      if (mediaRecorder?.state === "recording") mediaRecorder.stop();
+      if (microphoneStream) microphoneStream.getTracks().forEach((track) => track.stop());
+      if (recordingUrl) URL.revokeObjectURL(recordingUrl);
+    });
     drawVisualizer();
     if (!canvasContext) {
       micToggle.disabled = true;
