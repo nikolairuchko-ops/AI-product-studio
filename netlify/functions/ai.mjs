@@ -58,9 +58,32 @@ export default async (request) => {
     });
   }
 
+  const extractOutputText = (payload) => {
+    if (typeof payload?.output_text === "string" && payload.output_text.trim()) {
+      return payload.output_text.trim();
+    }
+
+    const outputBlocks = Array.isArray(payload?.output) ? payload.output : [];
+    const texts = [];
+
+    for (const block of outputBlocks) {
+      if (block?.type !== "message" || !Array.isArray(block.content)) continue;
+
+      for (const part of block.content) {
+        if (typeof part?.text !== "string") continue;
+        const text = part.text.trim();
+        if (text) texts.push(text);
+      }
+    }
+
+    return texts.join("\n").trim();
+  };
+
+  const outputText = extractOutputText(data);
+
   return new Response(JSON.stringify({
-    output_text: data.output_text || "",
-    response_id: data.id || null
+    output_text: outputText,
+    response_id: data?.id || null
   }), {
     status: 200,
     headers: { "content-type": "application/json" }

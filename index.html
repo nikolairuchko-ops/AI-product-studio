@@ -348,6 +348,132 @@
       line-height: 1.5;
     }
 
+    .voice-tuning {
+      margin-top: 18px;
+      padding: 14px 12px 12px;
+      border: 1px solid rgba(160, 183, 201, 0.14);
+      border-radius: 18px;
+      background: rgba(7, 15, 22, 0.72);
+    }
+
+    .tuning-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .tuning-head span {
+      color: var(--soft);
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .tuning-reset {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid rgba(160, 183, 201, 0.18);
+      border-radius: 999px;
+      background: rgba(125, 141, 255, 0.1);
+      color: var(--soft);
+      font: inherit;
+      font-size: 0.67rem;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .tuning-reset:hover {
+      border-color: rgba(102, 232, 255, 0.28);
+      background: rgba(102, 232, 255, 0.08);
+    }
+
+    .tuning-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .knob-control {
+      position: relative;
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      padding: 8px 6px 6px;
+      border-radius: 12px;
+      color: var(--muted);
+      text-align: center;
+      user-select: none;
+    }
+
+    .knob-control input[type="range"] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      opacity: 0;
+      z-index: 2;
+      cursor: pointer;
+    }
+
+    .knob-wrap {
+      position: relative;
+      width: 58px;
+      height: 58px;
+      display: grid;
+      place-items: center;
+    }
+
+    .knob-visual {
+      --angle: -25deg;
+      position: relative;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(102, 232, 255, 0.5), rgba(17, 31, 39, 0.95) 38%, rgba(9, 18, 26, 1) 68%);
+      border: 1px solid rgba(160, 183, 201, 0.28);
+      box-shadow: inset 0 0 18px rgba(102, 232, 255, 0.18), 0 10px 18px rgba(4, 8, 12, 0.4);
+    }
+
+    .knob-visual::before {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border-radius: 50%;
+      border: 1px solid rgba(160, 183, 201, 0.14);
+    }
+
+    .knob-pointer {
+      position: absolute;
+      left: 50%;
+      top: 7px;
+      width: 3px;
+      height: 16px;
+      background: linear-gradient(180deg, #66e8ff, #7d8dff);
+      border-radius: 999px;
+      transform: translateX(-50%) rotate(var(--angle));
+      transform-origin: 50% 18px;
+      box-shadow: 0 0 10px rgba(102, 232, 255, 0.75);
+    }
+
+    .knob-label {
+      display: block;
+      font-size: 0.64rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .knob-value {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--soft);
+      min-width: 3.6em;
+    }
+
     .mic-indicator {
       display: inline-flex;
       align-items: center;
@@ -921,8 +1047,50 @@
                 <option value="android">Голос андроида</option>
                 <option value="deep">Глубокий робот</option>
                 <option value="radio">Цифровой радиоголос</option>
+                <option value="hamster">Хомяк</option>
               </select>
               <p class="voice-preset-description" id="voice-preset-description" aria-live="polite">Ровный металлический оттенок и мягкая модуляция.</p>
+            </div>
+
+            <div class="voice-tuning" aria-label="Калибровка эффекта">
+              <div class="tuning-head">
+                <span>Калибровка</span>
+                <button class="tuning-reset" id="voice-tuning-reset" type="button">Сброс</button>
+              </div>
+              <div class="tuning-grid">
+                <label class="knob-control" data-tuning="tone">
+                  <span class="knob-label">Тон</span>
+                  <span class="knob-wrap">
+                    <input type="range" min="-100" max="100" step="1" value="0" aria-label="Тон голоса" />
+                    <span class="knob-visual"><span class="knob-pointer"></span></span>
+                  </span>
+                  <span class="knob-value">0</span>
+                </label>
+                <label class="knob-control" data-tuning="depth">
+                  <span class="knob-label">Модуляция</span>
+                  <span class="knob-wrap">
+                    <input type="range" min="-100" max="100" step="1" value="0" aria-label="Глубина модуляции" />
+                    <span class="knob-visual"><span class="knob-pointer"></span></span>
+                  </span>
+                  <span class="knob-value">0</span>
+                </label>
+                <label class="knob-control" data-tuning="texture">
+                  <span class="knob-label">Текстура</span>
+                  <span class="knob-wrap">
+                    <input type="range" min="-100" max="100" step="1" value="0" aria-label="Текстура эффекта" />
+                    <span class="knob-visual"><span class="knob-pointer"></span></span>
+                  </span>
+                  <span class="knob-value">0</span>
+                </label>
+                <label class="knob-control" data-tuning="cutoff">
+                  <span class="knob-label">Фильтр</span>
+                  <span class="knob-wrap">
+                    <input type="range" min="-100" max="100" step="1" value="0" aria-label="Частотный фильтр" />
+                    <span class="knob-visual"><span class="knob-pointer"></span></span>
+                  </span>
+                  <span class="knob-value">0</span>
+                </label>
+              </div>
             </div>
 
             <div class="voice-canvas-wrap">
@@ -1072,6 +1240,8 @@
     const shareStatus = document.querySelector("#share-status");
     const voicePreset = document.querySelector("#voice-preset");
     const voicePresetDescription = document.querySelector("#voice-preset-description");
+    const voiceTuningReset = document.querySelector("#voice-tuning-reset");
+    const tuningKnobs = document.querySelectorAll(".knob-control");
     const voiceCard = document.querySelector("#voice-lab");
     const canvas = document.querySelector("#voice-visualizer");
     const canvasContext = canvas.getContext("2d");
@@ -1093,6 +1263,7 @@
     const voicePresets = {
       classic: {
         description: "Ровный металлический оттенок и мягкая модуляция.",
+        oscillator: "sine",
         highpass: 150,
         lowpass: 3400,
         carrier: 34,
@@ -1102,6 +1273,7 @@
       },
       android: {
         description: "Яркий синтетический тембр с заметной вибрацией.",
+        oscillator: "square",
         highpass: 210,
         lowpass: 4200,
         carrier: 52,
@@ -1111,6 +1283,7 @@
       },
       deep: {
         description: "Низкий, приглушённый оттенок с тяжёлой модуляцией.",
+        oscillator: "triangle",
         highpass: 80,
         lowpass: 1550,
         carrier: 24,
@@ -1120,21 +1293,105 @@
       },
       radio: {
         description: "Узкий радиодиапазон и резкая цифровая модуляция.",
+        oscillator: "sawtooth",
         highpass: 420,
         lowpass: 2350,
         carrier: 78,
         modulationDepth: 0.78,
         modulationOffset: 0.22,
         distortion: 4.6
+      },
+      hamster: {
+        description: "Милый, быстрый и слегка писклявый голос как у хомяка.",
+        oscillator: "square",
+        highpass: 260,
+        lowpass: 5200,
+        carrier: 120,
+        modulationDepth: 0.9,
+        modulationOffset: 0.18,
+        distortion: 5.2
       }
     };
     let activeVoiceEffect = null;
+    const voiceTuningState = {
+      tone: 0,
+      depth: 0,
+      texture: 0,
+      cutoff: 0
+    };
+
+    const tuningConfig = {
+      tone: { min: -100, max: 100, format: (value) => `${value} Hz`, scale: 1.8 },
+      depth: { min: -100, max: 100, format: (value) => `${value}%`, scale: 0.012 },
+      texture: { min: -100, max: 100, format: (value) => `${value}%`, scale: 0.06 },
+      cutoff: { min: -100, max: 100, format: (value) => `${value}%`, scale: 0.12 }
+    };
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function getAdjustedPreset() {
+      const basePreset = voicePresets[voicePreset.value] || voicePresets.classic;
+      const toneOffset = voiceTuningState.tone * tuningConfig.tone.scale;
+      const depthOffset = voiceTuningState.depth * tuningConfig.depth.scale;
+      const textureOffset = voiceTuningState.texture * tuningConfig.texture.scale;
+      const cutoffOffset = voiceTuningState.cutoff * tuningConfig.cutoff.scale;
+
+      return {
+        ...basePreset,
+        carrier: clamp(basePreset.carrier + toneOffset, 12, 220),
+        modulationDepth: clamp(basePreset.modulationDepth + depthOffset, 0.08, 1.3),
+        modulationOffset: clamp(basePreset.modulationOffset + (voiceTuningState.depth * 0.003), 0.08, 0.95),
+        distortion: clamp(basePreset.distortion + textureOffset, 0.6, 10),
+        highpass: clamp(basePreset.highpass + cutoffOffset * 1.4, 40, 900),
+        lowpass: clamp(basePreset.lowpass + cutoffOffset * 18, 500, 8500)
+      };
+    }
+
+    function updateTuningKnobs() {
+      tuningKnobs.forEach((control) => {
+        const tuningKey = control.dataset.tuning;
+        const settings = tuningConfig[tuningKey];
+        const input = control.querySelector("input[type='range']");
+        const valueNode = control.querySelector(".knob-value");
+        const knob = control.querySelector(".knob-visual");
+        const value = Number(input.value);
+        const progress = (value - settings.min) / (settings.max - settings.min);
+        const angle = -140 + progress * 280;
+
+        knob.style.setProperty("--angle", `${angle}deg`);
+        valueNode.textContent = settings.format(value);
+      });
+    }
+
+    function updateVoiceTuningState() {
+      tuningKnobs.forEach((control) => {
+        const tuningKey = control.dataset.tuning;
+        const input = control.querySelector("input[type='range']");
+        voiceTuningState[tuningKey] = Number(input.value);
+      });
+      updateTuningKnobs();
+      applyVoicePreset();
+    }
+
+    function resetVoiceTuning() {
+      tuningKnobs.forEach((control) => {
+        const input = control.querySelector("input[type='range']");
+        input.value = "0";
+      });
+      Object.keys(voiceTuningState).forEach((key) => {
+        voiceTuningState[key] = 0;
+      });
+      updateTuningKnobs();
+      applyVoicePreset();
+    }
 
     function applyVoicePreset() {
-      const preset = voicePresets[voicePreset.value];
+      const preset = getAdjustedPreset();
       if (!preset) return;
 
-      voicePresetDescription.textContent = preset.description;
+      voicePresetDescription.textContent = `${voicePresets[voicePreset.value]?.description || ""} Калибровка: ${voiceTuningState.tone ? `тон ${voiceTuningState.tone}` : "стандарт"}.`;
       if (!activeVoiceEffect || !audioContext) return;
 
       const transitionTime = audioContext.currentTime + 0.04;
@@ -1153,7 +1410,7 @@
     }
 
     function createRobotVoiceEffect(source) {
-      const preset = voicePresets[voicePreset.value];
+      const preset = getAdjustedPreset();
       const highpass = audioContext.createBiquadFilter();
       highpass.type = "highpass";
       highpass.frequency.value = preset.highpass;
@@ -1641,6 +1898,13 @@
       }
     });
 
+    tuningKnobs.forEach((control) => {
+      const input = control.querySelector("input[type='range']");
+      input.addEventListener("input", updateVoiceTuningState);
+    });
+    voiceTuningReset.addEventListener("click", resetVoiceTuning);
+
+    updateTuningKnobs();
     window.addEventListener("resize", drawVisualizer);
     window.addEventListener("pagehide", () => {
       if (mediaRecorder?.state === "recording") mediaRecorder.stop();
